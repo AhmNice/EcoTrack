@@ -122,6 +122,58 @@ EcoTrack uses **PostgreSQL with multiple schemas** to enforce separation of conc
 - Cloudinary account
 - Email service credentials
 
+### Environment Variables
+
+Create `.env` files in both the `client` and `server` directories with the following placeholders:
+
+#### Server `.env` (server/.env)
+
+```env
+# Database Configuration
+DATABASE_URL=postgresql://username:password@localhost:5432/ecotrack_db
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=your_db_user
+DATABASE_PASSWORD=your_db_password
+DATABASE_NAME=ecotrack_db
+
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+
+# JWT & Authentication
+JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRE=7d
+OTP_EXPIRY=10
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+
+# Email Configuration
+EMAIL_HOST=your_email_host
+EMAIL_PORT=587
+EMAIL_USER=your_email@example.com
+EMAIL_PASSWORD=your_email_password
+EMAIL_FROM=noreply@ecotrack.com
+
+# Application
+APP_URL=http://localhost:5000
+CLIENT_URL=http://localhost:5173
+```
+
+#### Client `.env` (client/.env)
+
+```env
+# API Configuration
+VITE_API_BASE_URL=http://localhost:5000/api
+VITE_APP_URL=http://localhost:5173
+
+# Environment
+VITE_ENV=development
+```
+
 ### Installation Flow
 
 1. **Clone the repository**
