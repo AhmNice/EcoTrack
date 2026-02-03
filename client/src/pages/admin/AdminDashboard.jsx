@@ -4,7 +4,6 @@ import {
   FileWarning,
   CheckCircle,
   AlertTriangle,
-  TrendingUp,
 } from "lucide-react";
 import PageLayout from "../../layout/PageLayout";
 import { useStatisticsStore } from "../../store/statisticsStore";
@@ -14,17 +13,17 @@ const AdminDashboard = () => {
   const { dashboardStats, fetchDashboardStats } = useStatisticsStore();
   const [stats, setStats] = useState({
     users: {
-      total: dashboardStats?.users?.total || 0,
-      active: dashboardStats?.users?.active || 0,
+      total: 0,
+      active: 0,
     },
     reports: {
-      total: dashboardStats?.reports?.active || 0,
-      pending: dashboardStats?.reports?.active || 0,
-      critical: dashboardStats?.reports?.active || 0,
-      resolved: dashboardStats?.reports?.active || 0,
+      total: 0,
+      pending: 0,
+      critical: 0,
+      resolved: 0,
     },
   });
-  console.log(dashboardStats);
+
   // Simulate data loading
   useEffect(() => {
     const fetchStats = async () => {
@@ -32,16 +31,36 @@ const AdminDashboard = () => {
 
       try {
         await fetchDashboardStats();
-        setStats(dashboardStats);
+
+        // Update stats with fetched data
+        if (dashboardStats) {
+          setStats({
+            users: {
+              total: dashboardStats.users?.total || 0,
+              active: dashboardStats.users?.active || 0,
+            },
+            reports: {
+              total: dashboardStats.reports?.total || 0,
+              pending: dashboardStats.reports?.pending || 0,
+              critical: dashboardStats.reports?.critical || 0,
+              resolved: dashboardStats.reports?.resolved || 0,
+            },
+          });
+        }
       } catch (error) {
-        console.log(error);
+        console.log("Error fetching dashboard stats:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchStats();
-  }, []);
+  }, [fetchDashboardStats]);
+
+  // Calculate resolution rate safely
+  const resolutionRate = stats.reports.total > 0
+    ? Math.round((stats.reports.resolved / stats.reports.total) * 100)
+    : 0;
 
   if (loading) {
     return (
@@ -136,8 +155,7 @@ const AdminDashboard = () => {
           </div>
           <div className="text-sm text-green-600">
             <span>
-              {Math.round((stats.reports.resolved / stats.reports.total) * 100)}
-              % resolution rate
+              {resolutionRate}% resolution rate
             </span>
           </div>
         </div>

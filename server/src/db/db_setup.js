@@ -35,7 +35,7 @@ export const createTables = async () => {
   try {
     await client.query("BEGIN");
 
-    // Enable UUID generation
+    // Enable UUID support
     await client.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto";`);
 
     /* ============================
@@ -43,9 +43,9 @@ export const createTables = async () => {
     ============================ */
     await client.query(`
       CREATE SCHEMA IF NOT EXISTS auth_schema;
+      CREATE SCHEMA IF NOT EXISTS stakeholder_schema;
       CREATE SCHEMA IF NOT EXISTS report_schema;
       CREATE SCHEMA IF NOT EXISTS location_schema;
-      CREATE SCHEMA IF NOT EXISTS stakeholder_schema;
       CREATE SCHEMA IF NOT EXISTS notification_schema;
       CREATE SCHEMA IF NOT EXISTS analytics_schema;
       CREATE SCHEMA IF NOT EXISTS system_schema;
@@ -94,6 +94,32 @@ export const createTables = async () => {
     `);
 
     /* ============================
+       STAKEHOLDER SCHEMA (MUST COME EARLY)
+    ============================ */
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS stakeholder_schema.organizations (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        name VARCHAR(150) NOT NULL,
+        organization_type VARCHAR(50),
+        email VARCHAR(150),
+        phone_number VARCHAR(20),
+        description TEXT,
+        location TEXT,
+        website TEXT
+      );
+
+      CREATE UNIQUE INDEX IF NOT EXISTS unique_organization_name
+      ON stakeholder_schema.organizations (LOWER(name));
+
+      CREATE TABLE IF NOT EXISTS stakeholder_schema.organization_users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES auth_schema.users(id) ON DELETE CASCADE,
+        organization_id UUID REFERENCES stakeholder_schema.organizations(id) ON DELETE CASCADE,
+        UNIQUE (user_id, organization_id)
+      );
+    `);
+
+    /* ============================
        REPORT SCHEMA
     ============================ */
     await client.query(`
@@ -112,7 +138,8 @@ export const createTables = async () => {
         latitude DECIMAL(9,6),
         longitude DECIMAL(9,6),
         location_address TEXT,
-        severity_level VARCHAR(20) CHECK (severity_level IN ('low', 'medium', 'high', 'critical')),
+        severity_level VARCHAR(20)
+          CHECK (severity_level IN ('low', 'medium', 'high', 'critical')),
         status VARCHAR(30) DEFAULT 'pending'
           CHECK (status IN ('pending', 'in_progress', 'resolved', 'closed')),
         assigned BOOLEAN DEFAULT FALSE,
@@ -141,12 +168,12 @@ export const createTables = async () => {
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         report_id UUID REFERENCES report_schema.reports(id) ON DELETE CASCADE,
         user_id UUID REFERENCES auth_schema.users(id) ON DELETE CASCADE,
-        vote_type SMALLINT NOT NULL CHECK (vote_type IN (1, -1)),
+        vote_type SMALLINT CHECK (vote_type IN (1, -1)),
         created_at TIMESTAMP DEFAULT NOW(),
         UNIQUE (report_id, user_id)
       );
 
-      CREATE TABLE report_schema.report_organizations (
+      CREATE TABLE IF NOT EXISTS report_schema.report_organizations (
         id SERIAL PRIMARY KEY,
         report_id UUID REFERENCES report_schema.reports(id) ON DELETE CASCADE,
         organization_id UUID REFERENCES stakeholder_schema.organizations(id) ON DELETE CASCADE,
@@ -155,8 +182,9 @@ export const createTables = async () => {
       );
     `);
 
-
-    // Vote summary view
+    /* ============================
+       REPORT VIEWS
+    ============================ */
     await client.query(`
       CREATE OR REPLACE VIEW report_schema.report_vote_summary AS
       SELECT
@@ -190,33 +218,6 @@ export const createTables = async () => {
         state_id UUID REFERENCES location_schema.states(id),
         lga_id UUID REFERENCES location_schema.local_governments(id)
       );
-    `);
-
-    /* ============================
-       STAKEHOLDER SCHEMA
-    ============================ */
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS stakeholder_schema.organizations (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        name VARCHAR(150) NOT NULL,
-        organization_type VARCHAR(50),
-        email VARCHAR(150),
-        phone_number VARCHAR(20),
-        description TEXT,
-        location TEXT,
-        website TEXT
-      );
-
-      CREATE TABLE IF NOT EXISTS stakeholder_schema.organization_users (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID REFERENCES auth_schema.users(id) ON DELETE CASCADE,
-        organization_id UUID REFERENCES stakeholder_schema.organizations(id) ON DELETE CASCADE,
-        UNIQUE (user_id, organization_id)
-      );
-
-      CREATE UNIQUE INDEX unique_organization_name
-      ON stakeholder_schema.organizations (LOWER(name));
-
     `);
 
     /* ============================
@@ -261,7 +262,7 @@ export const createTables = async () => {
     `);
 
     await client.query("COMMIT");
-    console.log("✅ All schemas and tables created successfully");
+    console.log("✅ All schemas, tables, and views created successfully");
   } catch (error) {
     await client.query("ROLLBACK");
     console.error("❌ Error creating tables:", error.message);
