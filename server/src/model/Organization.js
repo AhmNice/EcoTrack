@@ -6,7 +6,7 @@ export class Organization {
     const query = `
       INSERT INTO stakeholder_schema.organizations
       (name, organization_type, email, phone_number, description, location, website)
-      VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (name) DO NOTHING
+      VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (LOWER(name)) DO NOTHING
       RETURNING *;
     `;
 

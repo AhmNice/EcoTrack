@@ -21,7 +21,7 @@ import {
   Award,
   Target,
   BarChart3,
-  Heart
+  Heart,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -41,11 +41,11 @@ const EcoTrackLanding = () => {
           setIsVisible(true);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
-    const sections = document.querySelectorAll('section');
-    sections.forEach(section => observer.observe(section));
+    const sections = document.querySelectorAll("section");
+    sections.forEach((section) => observer.observe(section));
 
     return () => observer.disconnect();
   }, []);
@@ -65,85 +65,91 @@ const EcoTrackLanding = () => {
     {
       icon: <Camera className="w-8 h-8" />,
       title: "Report Issues",
-      description: "Capture photos of environmental problems and tag exact locations using GPS",
+      description:
+        "Capture photos of environmental problems and tag exact locations using GPS",
       color: "from-green-500 to-emerald-500",
-      stats: "10K+ Reports"
-    },
-    {
-      icon: <MapPin className="w-8 h-8" />,
-      title: "Interactive Map",
-      description: "View real-time environmental reports on an interactive community map",
-      color: "from-blue-500 to-cyan-500",
-      stats: "500+ Communities"
+      stats: "10K+ Reports",
     },
     {
       icon: <Users className="w-8 h-8" />,
       title: "Community Driven",
       description: "Join forces with citizens, NGOs, and government agencies",
       color: "from-purple-500 to-pink-500",
-      stats: "50+ NGO Partners"
+      stats: "50+ NGO Partners",
     },
     {
       icon: <TrendingUp className="w-8 h-8" />,
       title: "Data Insights",
-      description: "Identify environmental hotspots and track progress over time",
+      description:
+        "Identify environmental hotspots and track progress over time",
       color: "from-orange-500 to-red-500",
-      stats: "1M+ Data Points"
+      stats: "1M+ Data Points",
     },
     {
       icon: <Shield className="w-8 h-8" />,
       title: "Transparency",
       description: "Promote accountability and collective responsibility",
       color: "from-indigo-500 to-blue-500",
-      stats: "100% Transparent"
+      stats: "100% Transparent",
     },
     {
       icon: <Globe className="w-8 h-8" />,
       title: "Sustainability",
-      description: "Support data-driven policy decisions for a cleaner environment",
+      description:
+        "Support data-driven policy decisions for a cleaner environment",
       color: "from-teal-500 to-green-500",
-      stats: "200+ Actions Taken"
-    }
-  ];
-
-  const environmentalIssues = [
-    { name: "Illegal Dumping", icon: "🚯", reports: "2,543" },
-    { name: "Deforestation", icon: "🌳", reports: "1,876" },
-    { name: "Soil Erosion", icon: "⛰️", reports: "934" },
-    { name: "Flooding", icon: "🌊", reports: "1,234" },
-    { name: "Bush Burning", icon: "🔥", reports: "765" },
-    { name: "Water Pollution", icon: "💧", reports: "1,543" }
+      stats: "200+ Actions Taken",
+    },
   ];
 
   const testimonials = [
     {
       name: "Sarah Chen",
       role: "Community Leader",
-      content: "EcoTrack helped our neighborhood coordinate a massive clean-up that removed over 5 tons of illegal waste!",
+      content:
+        "EcoTrack helped our neighborhood coordinate a massive clean-up that removed over 5 tons of illegal waste!",
       avatar: "👩‍💼",
-      rating: 5
+      rating: 5,
     },
     {
       name: "Marcus Johnson",
       role: "Environmental NGO",
-      content: "The data insights from EcoTrack enabled us to target our conservation efforts where they're needed most.",
+      content:
+        "The data insights from EcoTrack enabled us to target our conservation efforts where they're needed most.",
       avatar: "👨‍🌾",
-      rating: 5
+      rating: 5,
     },
     {
       name: "Dr. Elena Rodriguez",
       role: "Government Official",
-      content: "This platform has revolutionized how we monitor and respond to environmental issues in real-time.",
+      content:
+        "This platform has revolutionized how we monitor and respond to environmental issues in real-time.",
       avatar: "👩‍⚕️",
-      rating: 4
-    }
+      rating: 4,
+    },
   ];
 
   const stats = [
-    { number: "50K+", label: "Active Users", icon: <Users className="w-6 h-6" /> },
-    { number: "25K+", label: "Issues Resolved", icon: <CheckCircle className="w-6 h-6" /> },
-    { number: "150+", label: "Cities Covered", icon: <MapPin className="w-6 h-6" /> },
-    { number: "95%", label: "Satisfaction Rate", icon: <Heart className="w-6 h-6" /> }
+    {
+      number: "50K+",
+      label: "Active Users",
+      icon: <Users className="w-6 h-6" />,
+    },
+    {
+      number: "25K+",
+      label: "Issues Resolved",
+      icon: <CheckCircle className="w-6 h-6" />,
+    },
+    {
+      number: "150+",
+      label: "Cities Covered",
+      icon: <MapPin className="w-6 h-6" />,
+    },
+    {
+      number: "95%",
+      label: "Satisfaction Rate",
+      icon: <Heart className="w-6 h-6" />,
+    },
   ];
 
   return (
@@ -166,15 +172,17 @@ const EcoTrackLanding = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
-                {["Features", "How It Works", "Impact", "Testimonials"].map((item) => (
-                  <a
-                    key={item}
-                    href={`#${item.toLowerCase().replace(" ", "-")}`}
-                    className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:scale-105"
-                  >
-                    {item}
-                  </a>
-                ))}
+                {["Features", "How It Works", "Impact", "Testimonials"].map(
+                  (item) => (
+                    <a
+                      key={item}
+                      href={`#${item.toLowerCase().replace(" ", "-")}`}
+                      className="text-gray-700 hover:text-green-600 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:scale-105"
+                    >
+                      {item}
+                    </a>
+                  ),
+                )}
               </div>
             </div>
 
@@ -200,7 +208,11 @@ const EcoTrackLanding = () => {
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="text-gray-700 hover:text-green-600 p-2 transition-colors"
               >
-                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {isMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
               </button>
             </div>
           </div>
@@ -210,25 +222,33 @@ const EcoTrackLanding = () => {
         {isMenuOpen && (
           <div className="md:hidden bg-white/95 backdrop-blur-md border-t">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {["Features", "How It Works", "Impact", "Testimonials"].map((item) => (
-                <a
-                  key={item}
-                  href={`#${item.toLowerCase().replace(" ", "-")}`}
-                  className="block px-3 py-2 text-gray-700 hover:text-green-600 font-medium transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item}
-                </a>
-              ))}
+              {["Features", "How It Works", "Impact", "Testimonials"].map(
+                (item) => (
+                  <a
+                    key={item}
+                    href={`#${item.toLowerCase().replace(" ", "-")}`}
+                    className="block px-3 py-2 text-gray-700 hover:text-green-600 font-medium transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item}
+                  </a>
+                ),
+              )}
               <div className="pt-4 space-y-2">
                 <button
-                  onClick={() => { navigate("/login"); setIsMenuOpen(false); }}
+                  onClick={() => {
+                    navigate("/login");
+                    setIsMenuOpen(false);
+                  }}
                   className="w-full text-center text-green-600 hover:text-green-700 font-medium py-2"
                 >
                   Sign In
                 </button>
                 <button
-                  onClick={() => { navigate("/auth"); setIsMenuOpen(false); }}
+                  onClick={() => {
+                    navigate("/auth/login");
+                    setIsMenuOpen(false);
+                  }}
                   className="w-full bg-green-500 hover:bg-green-600 text-white py-2.5 rounded-lg font-medium transition-colors"
                 >
                   Get Started
@@ -256,13 +276,14 @@ const EcoTrackLanding = () => {
             </h1>
 
             <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed">
-              Empowering communities to monitor environmental issues through AI-powered reporting,
-              interactive mapping, and collective action for a sustainable future.
+              Empowering communities to monitor environmental issues through
+              AI-powered reporting, interactive mapping, and collective action
+              for a sustainable future.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <button
-                onClick={() => navigate("/auth")}
+                onClick={() => navigate("/auth/login")}
                 className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center space-x-3"
               >
                 <span>Start Reporting Now</span>
@@ -286,7 +307,9 @@ const EcoTrackLanding = () => {
                       {stat.icon}
                     </div>
                   </div>
-                  <div className="text-2xl font-bold text-gray-900">{stat.number}</div>
+                  <div className="text-2xl font-bold text-gray-900">
+                    {stat.number}
+                  </div>
                   <div className="text-sm text-gray-600">{stat.label}</div>
                 </div>
               ))}
@@ -302,14 +325,18 @@ const EcoTrackLanding = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-white relative overflow-hidden">
+      <section
+        id="features"
+        className="py-20 bg-white relative overflow-hidden"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               How EcoTrack Works
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              A comprehensive platform that turns community observations into actionable environmental data
+              A comprehensive platform that turns community observations into
+              actionable environmental data
             </p>
           </div>
 
@@ -325,20 +352,30 @@ const EcoTrackLanding = () => {
                     onClick={() => setIsPlaying(!isPlaying)}
                     className="p-2 hover:bg-white/50 rounded-lg transition-colors"
                   >
-                    {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                    {isPlaying ? (
+                      <Pause className="w-5 h-5" />
+                    ) : (
+                      <Play className="w-5 h-5" />
+                    )}
                   </button>
                   <button
                     onClick={() => setIsMuted(!isMuted)}
                     className="p-2 hover:bg-white/50 rounded-lg transition-colors"
                   >
-                    {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                    {isMuted ? (
+                      <VolumeX className="w-5 h-5" />
+                    ) : (
+                      <Volume2 className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
               </div>
 
               <div className="grid lg:grid-cols-2 gap-8 items-center">
                 <div className="space-y-6">
-                  <div className={`w-16 h-16 bg-gradient-to-r ${features[activeFeature].color} rounded-2xl flex items-center justify-center text-white transform hover:scale-110 transition-transform duration-300`}>
+                  <div
+                    className={`w-16 h-16 bg-gradient-to-r ${features[activeFeature].color} rounded-2xl flex items-center justify-center text-white transform hover:scale-110 transition-transform duration-300`}
+                  >
                     {features[activeFeature].icon}
                   </div>
                   <p className="text-lg text-gray-700 leading-relaxed">
@@ -359,7 +396,9 @@ const EcoTrackLanding = () => {
                         <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
                           <Camera className="w-10 h-10 text-white" />
                         </div>
-                        <p className="text-gray-600 font-medium">Interactive Demo</p>
+                        <p className="text-gray-600 font-medium">
+                          Interactive Demo
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -377,8 +416,8 @@ const EcoTrackLanding = () => {
                     }}
                     className={`w-3 h-3 rounded-full transition-all duration-300 ${
                       index === activeFeature
-                        ? 'bg-green-500 w-8'
-                        : 'bg-gray-300 hover:bg-gray-400'
+                        ? "bg-green-500 w-8"
+                        : "bg-gray-300 hover:bg-gray-400"
                     }`}
                   />
                 ))}
@@ -392,7 +431,9 @@ const EcoTrackLanding = () => {
               <div
                 key={index}
                 className={`bg-gradient-to-br ${feature.color} rounded-2xl p-6 text-white transform hover:scale-105 transition-all duration-300 cursor-pointer ${
-                  index === activeFeature ? 'ring-4 ring-white ring-opacity-50' : ''
+                  index === activeFeature
+                    ? "ring-4 ring-white ring-opacity-50"
+                    : ""
                 }`}
                 onClick={() => {
                   setActiveFeature(index);
@@ -408,69 +449,11 @@ const EcoTrackLanding = () => {
                   )}
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                <p className="text-white/90 text-sm leading-relaxed">{feature.description}</p>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Environmental Issues Section */}
-      <section id="how-it-works" className="py-20 bg-gradient-to-r from-green-500 via-emerald-500 to-cyan-500 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center text-white mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Track Environmental Issues
-            </h2>
-            <p className="text-xl opacity-90 max-w-2xl mx-auto">
-              Report and monitor various environmental challenges in your community with real-time tracking
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {environmentalIssues.map((issue, index) => (
-              <div
-                key={index}
-                className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-white hover:bg-white/30 transition-all duration-300 transform hover:scale-105 group"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-3xl">{issue.icon}</div>
-                  <div className="bg-white/20 rounded-full px-3 py-1 text-sm font-semibold">
-                    {issue.reports} reports
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-white/90">
-                  {issue.name}
-                </h3>
-                <div className="w-full bg-white/30 rounded-full h-2">
-                  <div
-                    className="bg-white h-2 rounded-full transition-all duration-1000"
-                    style={{
-                      width: `${(parseInt(issue.reports.replace(/,/g, '')) / 2543) * 100}%`
-                    }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Live Activity Feed */}
-          <div className="mt-12 bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-white">
-            <h3 className="text-2xl font-bold mb-6 text-center">Live Community Activity</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-              <div className="bg-white/20 rounded-xl p-4">
-                <div className="text-2xl font-bold">15</div>
-                <div className="text-sm opacity-90">Reports This Hour</div>
-              </div>
-              <div className="bg-white/20 rounded-xl p-4">
-                <div className="text-2xl font-bold">3</div>
-                <div className="text-sm opacity-90">Issues Being Resolved</div>
-              </div>
-              <div className="bg-white/20 rounded-xl p-4">
-                <div className="text-2xl font-bold">127</div>
-                <div className="text-sm opacity-90">Active Volunteers</div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -505,12 +488,18 @@ const EcoTrackLanding = () => {
                     />
                   ))}
                 </div>
-                <p className="text-gray-700 mb-6 italic">"{testimonial.content}"</p>
+                <p className="text-gray-700 mb-6 italic">
+                  "{testimonial.content}"
+                </p>
                 <div className="flex items-center space-x-3">
                   <div className="text-2xl">{testimonial.avatar}</div>
                   <div>
-                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                    <div className="text-sm text-gray-600">{testimonial.role}</div>
+                    <div className="font-semibold text-gray-900">
+                      {testimonial.name}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {testimonial.role}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -520,7 +509,10 @@ const EcoTrackLanding = () => {
       </section>
 
       {/* Impact Section */}
-      <section id="impact" className="py-20 bg-gradient-to-br from-gray-50 to-green-50">
+      <section
+        id="impact"
+        className="py-20 bg-gradient-to-br from-gray-50 to-green-50"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -528,8 +520,9 @@ const EcoTrackLanding = () => {
                 Driving Real Environmental Impact
               </h2>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                EcoTrack creates a powerful ecosystem where citizens, NGOs, and government agencies
-                collaborate to address environmental challenges effectively through data-driven solutions.
+                EcoTrack creates a powerful ecosystem where citizens, NGOs, and
+                government agencies collaborate to address environmental
+                challenges effectively through data-driven solutions.
               </p>
 
               <div className="space-y-4 mb-8">
@@ -539,9 +532,12 @@ const EcoTrackLanding = () => {
                   "Data-driven policy decision support system",
                   "Transparent accountability and progress tracking",
                   "Hotspot identification and predictive trend analysis",
-                  "Automated report generation for authorities"
+                  "Automated report generation for authorities",
                 ].map((item, index) => (
-                  <div key={index} className="flex items-center space-x-3 group">
+                  <div
+                    key={index}
+                    className="flex items-center space-x-3 group"
+                  >
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                       <CheckCircle className="w-4 h-4 text-white" />
                     </div>
@@ -570,12 +566,15 @@ const EcoTrackLanding = () => {
 
                 <div className="relative z-10">
                   <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-6">
-                    <h3 className="text-2xl font-bold mb-4">Join the Movement</h3>
+                    <h3 className="text-2xl font-bold mb-4">
+                      Join the Movement
+                    </h3>
                     <p className="opacity-90 mb-4 leading-relaxed">
-                      Be part of the solution. Your reports contribute to a cleaner, more sustainable environment for everyone.
+                      Be part of the solution. Your reports contribute to a
+                      cleaner, more sustainable environment for everyone.
                     </p>
                     <button
-                      onClick={() => navigate("/auth")}
+                      onClick={() => navigate("/auth/signup")}
                       className="bg-white text-green-600 hover:bg-gray-100 px-6 py-3 rounded-lg font-semibold transition-colors w-full transform hover:scale-105"
                     >
                       Create Your Account
@@ -611,12 +610,13 @@ const EcoTrackLanding = () => {
             Ready to Make a Difference?
           </h2>
           <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Join thousands of environmental champions using EcoTrack to protect our planet,
-            one report at a time. Together, we can create lasting change.
+            Join thousands of environmental champions using EcoTrack to protect
+            our planet, one report at a time. Together, we can create lasting
+            change.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button
-              onClick={() => navigate("/auth")}
+              onClick={() => navigate("/auth/signup")}
               className="bg-white text-green-600 hover:bg-gray-100 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center space-x-3"
             >
               <Target className="w-6 h-6" />
@@ -655,31 +655,35 @@ const EcoTrackLanding = () => {
                 <span className="text-2xl font-bold">EcoTrack</span>
               </div>
               <p className="text-gray-400 leading-relaxed">
-                Empowering communities to protect our environment through technology,
-                collaboration, and data-driven action for a sustainable future.
+                Empowering communities to protect our environment through
+                technology, collaboration, and data-driven action for a
+                sustainable future.
               </p>
             </div>
 
             {[
               {
                 title: "Platform",
-                links: ["Features", "How It Works", "Case Studies", "Pricing"]
+                links: ["Features", "How It Works", "Case Studies", "Pricing"],
               },
               {
                 title: "Resources",
-                links: ["Help Center", "Community", "Partners", "Blog"]
+                links: ["Help Center", "Community", "Partners", "Blog"],
               },
               {
                 title: "Company",
-                links: ["About", "Contact", "Careers", "Press Kit"]
-              }
+                links: ["About", "Contact", "Careers", "Press Kit"],
+              },
             ].map((column, index) => (
               <div key={index}>
                 <h3 className="font-semibold text-lg mb-4">{column.title}</h3>
                 <ul className="space-y-2">
                   {column.links.map((link, linkIndex) => (
                     <li key={linkIndex}>
-                      <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                      <a
+                        href="#"
+                        className="text-gray-400 hover:text-white transition-colors"
+                      >
                         {link}
                       </a>
                     </li>
@@ -691,7 +695,8 @@ const EcoTrackLanding = () => {
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
             <p>
-              &copy; 2024 EcoTrack. All rights reserved. Building a sustainable future together.
+              &copy; 2024 EcoTrack. All rights reserved. Building a sustainable
+              future together.
             </p>
           </div>
         </div>
