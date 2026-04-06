@@ -1,5 +1,5 @@
 import { sender, transporter } from "../config/mail.config.js";
-import { adminWelcomeEmailTemplate, passwordChangedEmailTemplate, resetPasswordEmailTemplate, welcomeEmailTemplate } from "./templates.js";
+import { adminWelcomeEmailTemplate, otpEmailTemplate, passwordChangedEmailTemplate, resetPasswordEmailTemplate, welcomeEmailTemplate } from "./templates.js";
 
 const mailOption = ({ email, subject, html }) => ({
   from: sender,
@@ -7,7 +7,33 @@ const mailOption = ({ email, subject, html }) => ({
   subject: subject,
   html: html
 });
+export const sendOTPEmail = async ({ full_name, email, otp }) => {
+  try {
+    // const { full_name, resetLink, email } = user;
+    if (!email || !otp || !full_name) {
+      throw new Error("Missing required user data for OTP email");
+    }
 
+    const content = otpEmailTemplate(
+      full_name,
+      otp,
+      "15"
+    );
+
+    await transporter.sendMail(
+      mailOption({
+        email,
+        subject: "Your One-Time Password (OTP)",
+        html: content,
+      })
+    );
+    console.log("OTP email sent");
+    return true;
+  } catch (error) {
+    console.error(" ❌ OTP email failed:", error.message);
+    throw error;
+  }
+}
 export const sendPasswordResetLink = async ({ full_name, resetLink, email }) => {
   try {
     // const { full_name, resetLink, email } = user;
@@ -60,7 +86,7 @@ export const sendWelcomeEmail = async (user = { email, full_name }) => {
 export const sendPasswordChangedEmail = async (user = { full_name, email, deviceInfo, time }) => {
   try {
     const { full_name, email, deviceInfo, time } = user;
-    
+
     if (!email || !full_name || !time) {
       throw new Error("Invalid data for password change email");
     }

@@ -57,6 +57,8 @@ export const createUser = async (req, res) => {
       affected_table: "auth_schema.users",
     });
 
+    await sendOTPEmail({ full_name, email, otp: user.otp_code })
+
     return res.status(201).json({
       success: true,
       message: "User created successfully",

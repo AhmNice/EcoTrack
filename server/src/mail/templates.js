@@ -1,5 +1,211 @@
 // Updated with green theme
+export const otpEmailTemplate = (fullName, otp) => `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One-Time Password (OTP) - EcoTrack Secure Login</title>
+    <style>
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.8;
+            color: #1a202c;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .official-container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: white;
+            border: 1px solid #d1fae5;
+            box-shadow: 0 4px 6px rgba(5, 150, 105, 0.1);
+        }
+        .security-header {
+            background: linear-gradient(to right, #059669, #10b981);
+            color: white;
+            padding: 30px;
+            border-bottom: 4px solid #047857;
+            text-align: center;
+        }
+        .security-seal {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 80px;
+            font-weight: bold;
+            color: #059669;
+            border: 3px solid white;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 32px;
+        }
+        .security-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 10px 0 5px 0;
+            letter-spacing: 1px;
+        }
+        .security-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: normal;
+        }
+        .content-section {
+            padding: 40px;
+        }
+        .recipient-info {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #d1fae5;
+        }
+        .otp-box {
+            background: #f0fdf4;
+            border: 2px solid #86efac;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .otp-code {
+            font-family: 'Courier New', monospace;
+            font-size: 36px;
+            font-weight: bold;
+            letter-spacing: 8px;
+            color: #065f46;
+            background: white;
+            display: inline-block;
+            padding: 15px 30px;
+            border-radius: 8px;
+            border: 1px solid #d1fae5;
+            margin: 15px 0;
+        }
+        .security-notice {
+            background: #fffbeb;
+            border-left: 4px solid #fbbf24;
+            padding: 15px;
+            margin: 25px 0;
+            font-size: 14px;
+            color: #78350f;
+        }
+        .timer-notice {
+            background: #f8fafc;
+            border: 1px solid #d1fae5;
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+            color: #4b5563;
+            margin: 20px 0;
+        }
+        .action-required {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+        .footer {
+            background: #065f46;
+            color: white;
+            padding: 30px 40px;
+        }
+        .security-contact {
+            margin-top: 15px;
+            line-height: 1.6;
+            color: #a7f3d0;
+        }
+        .emergency-notice {
+            background: #dc2626;
+            color: #fecaca;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="official-container">
+        <div class="security-header">
+            <div class="security-seal">🔐</div>
+            <div class="security-title">SECURE ACCESS: ONE-TIME PASSWORD (OTP)</div>
+            <div class="security-subtitle">ECO-TRACK ENVIRONMENTAL MONITORING SYSTEM</div>
+        </div>
 
+        <div class="content-section">
+            <div class="recipient-info">
+                <div style="font-size: 18px; font-weight: bold; color: #065f46;">AUTHENTICATION REQUIRED</div>
+                <div style="color: #6b7280; margin-top: 5px;">Reference: OTP-${Date.now().toString().slice(-8)}</div>
+                <div style="color: #6b7280; margin-top: 5px;">Generated: ${new Date().toLocaleString()}</div>
+            </div>
+
+            <p>Dear <strong style="color: #065f46;">${fullName}</strong>,</p>
+
+            <p style="color: #4b5563;">You have requested to access your EcoTrack Environmental Monitoring System account. Use the One-Time Password (OTP) below to complete your authentication process. This OTP is required for secure login verification.</p>
+
+            <div class="otp-box">
+                <strong style="color: #065f46; font-size: 16px;">YOUR ONE-TIME PASSWORD (OTP)</strong>
+                <div class="otp-code">${otp}</div>
+                <div style="color: #4b5563; font-size: 14px;">This OTP is valid for 10 minutes</div>
+            </div>
+
+            <div class="timer-notice">
+                ⏱️ <strong>Time-sensitive credential:</strong> This OTP will expire in 10 minutes. For security reasons, do not share this code with anyone.
+            </div>
+
+            <div class="security-notice">
+                <strong>⚠️ SECURITY REMINDER:</strong><br>
+                • Never share this OTP with anyone, including EcoTrack staff<br>
+                • EcoTrack will never call or text you asking for this code<br>
+                • If you didn't request this OTP, please ignore this email<br>
+                • Your account security is our priority
+            </div>
+
+            <div class="action-required">
+                <strong style="color: #991b1b; font-size: 16px;">DIDN'T REQUEST THIS OTP?</strong>
+                <p style="margin: 10px 0; color: #7f1d1d;">If you received this email but did not attempt to log in to your EcoTrack account, please take immediate action:</p>
+                <ol style="margin: 10px 0; padding-left: 20px; color: #7f1d1d;">
+                    <li>Change your account password immediately</li>
+                    <li>Contact EcoTrack Security at (555) 123-SECU (7328)</li>
+                    <li>Review your recent account activity</li>
+                </ol>
+            </div>
+
+            <p style="color: #4b5563; font-size: 14px;">This OTP is generated specifically for this login attempt. After use or expiration, this code will no longer be valid. For ongoing access, you will need to generate a new OTP.</p>
+
+            <p><strong style="color: #065f46;">Thank you for helping keep EcoTrack secure,</strong><br>
+            EcoTrack Security Division<br>
+            Department of Environmental Protection</p>
+        </div>
+
+        <div class="footer">
+            <strong style="font-size: 16px; color: #a7f3d0;">EcoTrack Security Division</strong><br>
+            <div class="security-contact">
+                Department of Environmental Protection<br>
+                📍 123 Environmental Plaza, Government District<br>
+                📞 Security Hotline: (555) 123-SECU (7328)<br>
+                📧 security@ecotrack.gov<br>
+                🌐 https://ecotrack.gov/security
+            </div>
+
+            <div class="emergency-notice">
+                <strong>EMERGENCY CONTACT:</strong> If you believe your account has been compromised, contact security immediately at (555) 123-SECU (7328) or email security-emergency@ecotrack.gov
+            </div>
+
+            <div style="margin-top: 25px; font-size: 11px; color: #86efac;">
+                This is an automated security notification from the EcoTrack system.<br>
+                Do not reply to this email. For assistance, use the contact information above.<br>
+                This OTP is for one-time use only and will expire in 10 minutes.
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+`;
 export const passwordChangedEmailTemplate = (userName, timestamp, deviceInfo = "Unknown Device") => `
 <!DOCTYPE html>
 <html>
