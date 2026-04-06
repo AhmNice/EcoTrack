@@ -237,7 +237,7 @@ const EcoTrackLanding = () => {
               <div className="pt-4 space-y-2">
                 <button
                   onClick={() => {
-                    navigate("/login");
+                    navigate("/auth/login");
                     setIsMenuOpen(false);
                   }}
                   className="w-full text-center text-green-600 hover:text-green-700 font-medium py-2"
@@ -246,7 +246,7 @@ const EcoTrackLanding = () => {
                 </button>
                 <button
                   onClick={() => {
-                    navigate("/auth/login");
+                    navigate("/auth/signup");
                     setIsMenuOpen(false);
                   }}
                   className="w-full bg-green-500 hover:bg-green-600 text-white py-2.5 rounded-lg font-medium transition-colors"
