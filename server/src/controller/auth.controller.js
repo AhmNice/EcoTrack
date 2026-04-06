@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { logAudit, logUserActivity } from "../helpers/logHelper.js";
 import { createSession } from "../util/session.js";
 import { getClientIp } from "../util/ip_address.js";
-import { sendPasswordChangedEmail, sendPasswordResetLink } from "../mail/services.js";
+import { sendOTPEmail, sendPasswordChangedEmail, sendPasswordResetLink } from "../mail/services.js";
 import { Notification } from "../model/Notification.js";
 
 export const createUser = async (req, res) => {
