@@ -8,6 +8,8 @@ export class User {
     password_hash,
     phone_number = null,
     role_id,
+    otp_code = null,
+    otp_expiry = null,
     is_active = true,
     is_super_admin = false,
   }) {
@@ -18,13 +20,15 @@ export class User {
     this.role_id = role_id;
     this.is_active = is_active;
     this.is_super_admin = is_super_admin;
+    this.otp_code = otp_code;
+    this.otp_expiry = otp_expiry;
   }
 
   async save() {
     const query = `
       INSERT INTO auth_schema.users
-      (full_name, email, password_hash, phone_number, role_id, is_active, is_super_admin)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      (full_name, email, password_hash, phone_number, role_id, is_active, is_super_admin, otp_code, otp_expiry)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *
     `;
 
@@ -37,6 +41,8 @@ export class User {
         this.role_id,
         this.is_active,
         this.is_super_admin,
+        this.otp_code,
+        this.otp_expiry,
       ]);
 
       return rows[0] || null;
@@ -84,10 +90,7 @@ export class User {
       }
       const {
         reset_token,
-        reset_token_expiry,
-        otp_code,
-        otp_expiry,
-        ...safeData
+        reset_token_expiry, ...safeData
       } = rows[0];
       return safeData || null;
     } catch (error) {

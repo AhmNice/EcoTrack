@@ -6,6 +6,7 @@ import { createSession } from "../util/session.js";
 import { getClientIp } from "../util/ip_address.js";
 import { sendOTPEmail, sendPasswordChangedEmail, sendPasswordResetLink } from "../mail/services.js";
 import { Notification } from "../model/Notification.js";
+import { generateOtp } from "../util/generateOTP.js";
 
 export const createUser = async (req, res) => {
   const { full_name, email, password, phone_number, role } = req.body;
@@ -33,7 +34,7 @@ export const createUser = async (req, res) => {
 
     // Hash password
     const password_hash = await bcrypt.hash(password, 10);
-
+    const otp_code = generateOtp(6)
     // Create new user
     const user = await new User({
       full_name,
@@ -41,6 +42,8 @@ export const createUser = async (req, res) => {
       password_hash,
       phone_number,
       role_id: existingRole.id,
+      otp_code,
+      otp_expiry: new Date(Date.now() + 15 * 60 * 1000), // OTP valid for 15 minutes
     }).save();
 
     // Log user activity
@@ -57,10 +60,11 @@ export const createUser = async (req, res) => {
       affected_table: "auth_schema.users",
     });
 
+
     await sendOTPEmail({
       full_name: user.full_name,
       email: user.email,
-      otp: user.otp_code
+      otp: otp_code
     })
 
     return res.status(201).json({
@@ -70,6 +74,7 @@ export const createUser = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Error creating user:", error);
+
     return res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -89,18 +94,19 @@ export const verifyOTP = async (req, res) => {
     }
     const now = Date.now()
     if (otp !== user.otp_code || now > user.otp_expiry) {
+      console.log("Invalid or expired OTP attempt for user:", { email, otp, userOtp: user.otp_code, otpExpiry: user.otp_expiry, now });
       return res.status(400).json({
         success: false,
         message: "Invalid or expired otp"
       })
     }
-    const update_user = await User.update(user.id, { otp_code: null, otp_expiry: null, updated_at: now, is_verified: true })
+    const update_user = await User.update(user.id, { otp_code: null, otp_expiry: null, is_verified: true })
     return res.status(200).json({
       success: true,
       message: "Account Verified"
     })
   } catch (error) {
-    console.log("Error while trying to verify user")
+    console.log("Error while trying to verify user", error)
     return res.status(500).json({
       success: false,
       message: "Internal server error"

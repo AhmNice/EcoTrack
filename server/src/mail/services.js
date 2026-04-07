@@ -11,6 +11,7 @@ export const sendOTPEmail = async ({ full_name, email, otp }) => {
   try {
     // const { full_name, resetLink, email } = user;
     if (!email || !otp || !full_name) {
+      console.error("Invalid user data for OTP email:", { full_name, email, otp });
       throw new Error("Missing required user data for OTP email");
     }
 
