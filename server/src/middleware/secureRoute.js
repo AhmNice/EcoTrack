@@ -20,3 +20,17 @@ export const secureRoute = async (req, res, next) => {
     });
   }
 };
+
+export const secureRouteWithoutRateLimit = async (req, res, next) => {
+  try {
+    // Verify JWT session without rate limiting
+    await verifySession(req, res, next);
+  } catch (error) {
+    console.error("❌ SecureRouteWithoutRateLimit error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};

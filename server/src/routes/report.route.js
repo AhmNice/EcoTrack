@@ -19,7 +19,7 @@ import {
   handleInputValidation,
   updateReportValidator,
 } from "../middleware/validator.js";
-import { secureRoute } from "../middleware/secureRoute.js";
+import { secureRoute, secureRouteWithoutRateLimit } from "../middleware/secureRoute.js";
 import { multipleUpload } from "../middleware/fileUploader.js";
 
 const reportRoute = express.Router();
@@ -39,7 +39,7 @@ reportRoute.get(
   "/get-report/:report_id",
   getReportByIdValidator,
   handleInputValidation,
-  secureRoute,
+  secureRouteWithoutRateLimit,
   getReportById
 );
 
