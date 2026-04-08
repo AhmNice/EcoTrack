@@ -193,10 +193,10 @@ const ReportCard = ({ report }) => {
 
         <div className="flex items-center gap-1.5 justify-between text-sm text-gray-500 mt-auto">
           <div className="flex items-center gap-4 truncate">
-            <span className="truncate">{report.reporter.full_name}</span>
+            <span className="truncate">{report?.reporter?.full_name}</span>
             <span>•</span>
             <span className="whitespace-nowrap">
-              {new Date(report.created_at).toLocaleDateString()}
+              {new Date(report?.created_at).toLocaleDateString()}
             </span>
           </div>
           <div className="flex items-center gap-2 shrink-0">

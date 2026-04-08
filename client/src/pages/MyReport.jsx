@@ -305,27 +305,7 @@ const MyReport = () => {
           </div>
         )}
 
-        {/* Empty State (when no reports at all) */}
-        {reports.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-8 h-8 text-green-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              No reports yet
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Submit your first environmental report to get started
-            </p>
-            <a
-              href="/submit-report"
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
-            >
-              Submit Report
-              <ChevronDown className="w-4 h-4 rotate-90" />
-            </a>
-          </div>
-        )}
+      
       </div>
     </PageLayout>
   );

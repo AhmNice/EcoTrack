@@ -65,7 +65,7 @@ const Signup_component = () => {
       if (!response.success) {
         return;
       }
-      navigate("/auth/verify-account");
+      navigate("/auth/verify-account", { state: { email: formData.email } });
     } catch (error) {
       console.error("Signup error:", error);
     } finally {
