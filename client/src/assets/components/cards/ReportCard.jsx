@@ -196,7 +196,7 @@ const ReportCard = ({ report }) => {
             <span className="truncate">{report?.reporter?.full_name}</span>
             <span>•</span>
             <span className="whitespace-nowrap">
-              {new Date(report?.created_at).toLocaleDateString()}
+              {report?.created_at ? new Date(report.created_at).toLocaleDateString() : ""}
             </span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
