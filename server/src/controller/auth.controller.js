@@ -93,6 +93,7 @@ export const verifyOTP = async (req, res) => {
       })
     }
     const now = Date.now()
+    // const isValid = await bcrypt
     if (otp !== user.otp_code || now > user.otp_expiry) {
       console.log("Invalid or expired OTP attempt for user:", { email, otp, userOtp: user.otp_code, otpExpiry: user.otp_expiry, now });
       return res.status(400).json({
