@@ -49,6 +49,8 @@ const SubmitReport = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+  const [locationError, setLocationError] = useState("");
 
   // Hooks
   const {
@@ -68,11 +70,22 @@ const SubmitReport = () => {
     };
     fetchIssues();
   }, []);
-  console.log(issues)
 
-  // Fetch location on mount
+  // Fetch location on mount with better error handling
   useEffect(() => {
-    fetchLocation();
+    const initLocation = async () => {
+      setIsFetchingLocation(true);
+      setLocationError("");
+      try {
+        await fetchLocation();
+      } catch (error) {
+        console.error("Location fetch error:", error);
+        setLocationError("Unable to detect location. Please enable location services.");
+      } finally {
+        setIsFetchingLocation(false);
+      }
+    };
+    initLocation();
   }, []);
 
   // Update location data when geolocation is available
@@ -83,31 +96,179 @@ const SubmitReport = () => {
         latitude: location.latitude,
         longitude: location.longitude,
       }));
-      getAddress();
+      getAddress(); // This should trigger address lookup
     }
   }, [location.latitude, location.longitude]);
 
+  // Function to extract state and local government from address components
+  const extractGovernmentData = (addressComponents) => {
+    let state = "";
+    let localGovernment = "";
+
+    // Common Nigerian state and LGA patterns
+    const nigerianStates = [
+      "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
+      "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Gombe", "Imo", "Jigawa",
+      "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa", "Niger",
+      "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara",
+      "FCT", "Federal Capital Territory"
+    ];
+
+    // Common Nigerian LGAs (this is a small sample - you should expand this)
+    const nigerianLGAs = [
+      "Alimosho", "Ajeromi-Ifelodun", "Kosofe", "Mushin", "Oshodi-Isolo", "Shomolu",
+      "Agege", "Ifako-Ijaiye", "Ikeja", "Surulere", "Lagos Island", "Lagos Mainland",
+      "Apapa", "Eti-Osa", "Amuwo-Odofin", "Ojo", "Badagry", "Ikorodu", "Ibeju-Lekki",
+      "Epe", "Abuja Municipal", "Gwagwalada", "Kuje", "Bwari", "Abaji", "Kwali"
+    ];
+
+    // Check various possible fields in the address object
+    if (addressComponents) {
+      // Try to find state from different possible field names
+      state = addressComponents.state ||
+              addressComponents.province ||
+              addressComponents.region ||
+              addressComponents.administrative_area_level_1 ||
+              "";
+
+      // Try to find local government from different possible field names
+      localGovernment = addressComponents.county ||
+                       addressComponents.district ||
+                       addressComponents.municipality ||
+                       addressComponents.city ||
+                       addressComponents.locality ||
+                       addressComponents.suburb ||
+                       addressComponents.administrative_area_level_2 ||
+                       "";
+
+      // If no state found but we have a city, try to infer from city
+      if (!state && addressComponents.city) {
+        for (const nigState of nigerianStates) {
+          if (addressComponents.city.toLowerCase().includes(nigState.toLowerCase())) {
+            state = nigState;
+            break;
+          }
+        }
+      }
+
+      // Clean up and validate state
+      if (state && !nigerianStates.some(s => state.toLowerCase().includes(s.toLowerCase()))) {
+        // If state doesn't match known Nigerian states, keep as is but log warning
+        console.warn("Unknown state detected:", state);
+      }
+
+      // Clean up and validate local government
+      if (localGovernment && !nigerianLGAs.some(lga => localGovernment.toLowerCase().includes(lga.toLowerCase()))) {
+        // If LGA doesn't match known LGAs, try to extract from full address
+        if (addressComponents.formatted_address) {
+          const addressParts = addressComponents.formatted_address.split(',');
+          if (addressParts.length >= 2) {
+            const possibleLGA = addressParts[addressParts.length - 2].trim();
+            if (possibleLGA && possibleLGA.length < 30) {
+              localGovernment = possibleLGA;
+            }
+          }
+        }
+      }
+    }
+
+    return { state, local_government: localGovernment };
+  };
+
+  // Function to get government data from coordinates using reverse geocoding API
+  const fetchGovernmentDataFromCoordinates = async (lat, lng) => {
+    try {
+      // Using OpenStreetMap Nominatim API (free, no API key required)
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch location data");
+      }
+
+      const data = await response.json();
+
+      if (data && data.address) {
+        const address = data.address;
+
+        // Extract Nigerian state and LGA from OSM data
+        let state = address.state || address.province || address.region || "";
+        let localGovernment = address.county || address.district || address.city_district ||
+                             address.municipality || address.city || address.town || "";
+
+        // For Nigerian addresses, sometimes LGA is in the 'county' or 'district' field
+        if (!localGovernment && address.suburb) {
+          localGovernment = address.suburb;
+        }
+
+        // If still no local government, try to extract from the display name
+        if (!localGovernment && data.display_name) {
+          const parts = data.display_name.split(',');
+          if (parts.length >= 3) {
+            // Often the LGA is the third part from the end in Nigerian addresses
+            const possibleLGA = parts[parts.length - 3].trim();
+            if (possibleLGA && possibleLGA.length < 40 && !possibleLGA.includes(localGovernment)) {
+              localGovernment = possibleLGA;
+            }
+          }
+        }
+
+        // Update address in locationData
+        setLocationData(prev => ({
+          ...prev,
+          location_address: data.display_name || `${address.city || ""}, ${state || ""}`.trim()
+        }));
+
+        return { state, local_government: localGovernment };
+      }
+    } catch (error) {
+      console.error("Error fetching government data:", error);
+      toast.error("Could not automatically detect state and local government. Please enter manually.");
+    }
+
+    return { state: "", local_government: "" };
+  };
+
   // Update address and extract government data when available
   useEffect(() => {
-    if (address) {
-      // Set the full address
-      setLocationData((prev) => ({
-        ...prev,
-        location_address: `${address.city || ""}, ${address.country || ""}`.trim(),
-      }));
+    const updateGovernmentInfo = async () => {
+      if (address && location.latitude && location.longitude) {
+        // First try to extract from the address object from your geolocation hook
+        let extractedData = extractGovernmentData(address);
 
-      // Extract government jurisdiction data from address
-      // This assumes your geolocation hook returns state/province and local government info
-      // You might need to adjust based on your actual API response structure
-      const state = address.state || address.province || address.region || "";
-      const localGovernment = address.county || address.district || address.municipality || address.city || "";
+        // If state or LGA is missing, try the direct API approach
+        if (!extractedData.state || !extractedData.local_government) {
+          const apiData = await fetchGovernmentDataFromCoordinates(
+            location.latitude,
+            location.longitude
+          );
 
-      setGovernmentData({
-        state: state,
-        local_government: localGovernment,
-      });
+          extractedData = {
+            state: extractedData.state || apiData.state,
+            local_government: extractedData.local_government || apiData.local_government
+          };
+        }
+
+        setGovernmentData({
+          state: extractedData.state,
+          local_government: extractedData.local_government,
+        });
+
+        // Set the full address if not already set
+        if (address.formatted_address) {
+          setLocationData((prev) => ({
+            ...prev,
+            location_address: address.formatted_address,
+          }));
+        }
+      }
+    };
+
+    if (address || (location.latitude && location.longitude)) {
+      updateGovernmentInfo();
     }
-  }, [address]);
+  }, [address, location.latitude, location.longitude]);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -122,6 +283,22 @@ const SubmitReport = () => {
     // Clear error for this field
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  // Manual refresh of location and government data
+  const handleRefreshLocation = async () => {
+    setIsFetchingLocation(true);
+    setLocationError("");
+    try {
+      await fetchLocation();
+      toast.info("Refreshing location data...");
+    } catch (error) {
+      console.error("Error refreshing location:", error);
+      setLocationError("Failed to refresh location. Please check your location settings.");
+      toast.error("Could not refresh location");
+    } finally {
+      setIsFetchingLocation(false);
     }
   };
 
@@ -250,6 +427,11 @@ const SubmitReport = () => {
         setTimeout(() => {
           setSuccessMessage("");
         }, 5000);
+
+        // Optional: Navigate to reports page after successful submission
+        // setTimeout(() => {
+        //   navigate("/my-reports");
+        // }, 2000);
       } else {
         throw new Error(response.message || "Failed to submit report");
       }
@@ -438,67 +620,87 @@ const SubmitReport = () => {
               </div>
             </div>
 
-            {/* Government Jurisdiction */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* State */}
-              <div className="space-y-4">
-                <label className="block text-sm font-semibold text-gray-900 flex items-center gap-2">
-                  <Map className="w-4 h-4" />
-                  State *
+            {/* Government Jurisdiction - Auto-populated from GPS */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-semibold text-gray-900">
+                  Government Jurisdiction (Auto-detected)
                 </label>
-                <div className="relative">
+                {(isFetchingLocation || geoLoading) && (
+                  <span className="text-xs text-green-600 flex items-center gap-1">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Detecting...
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* State */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Map className="w-4 h-4" />
+                    State *
+                  </label>
                   <input
                     type="text"
                     name="state"
                     value={governmentData.state}
                     onChange={handleChange}
-                    placeholder="e.g., Lagos State"
+                    placeholder={isFetchingLocation ? "Detecting state..." : "State will be auto-detected"}
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition ${
                       errors.state ? "border-red-300" : "border-gray-300"
-                    }`}
+                    } ${!governmentData.state && !isFetchingLocation ? "bg-yellow-50" : ""}`}
                     required
                   />
+                  {errors.state && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.state}
+                    </p>
+                  )}
+                  {!governmentData.state && !isFetchingLocation && !geoLoading && (
+                    <p className="text-xs text-yellow-600">
+                      Could not auto-detect state. Please enter manually.
+                    </p>
+                  )}
                 </div>
-                {errors.state && (
-                  <p className="text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.state}
-                  </p>
-                )}
-                <p className="text-xs text-gray-500">
-                  Enter the state where the issue is located
-                </p>
-              </div>
 
-              {/* Local Government */}
-              <div className="space-y-4">
-                <label className="block text-sm font-semibold text-gray-900 flex items-center gap-2">
-                  <Building className="w-4 h-4" />
-                  Local Government *
-                </label>
-                <div className="relative">
+                {/* Local Government */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <Building className="w-4 h-4" />
+                    Local Government *
+                  </label>
                   <input
                     type="text"
                     name="local_government"
                     value={governmentData.local_government}
                     onChange={handleChange}
-                    placeholder="e.g., Ikeja Local Government"
+                    placeholder={isFetchingLocation ? "Detecting LGA..." : "Local Government will be auto-detected"}
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition ${
                       errors.local_government ? "border-red-300" : "border-gray-300"
-                    }`}
+                    } ${!governmentData.local_government && !isFetchingLocation ? "bg-yellow-50" : ""}`}
                     required
                   />
+                  {errors.local_government && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.local_government}
+                    </p>
+                  )}
+                  {!governmentData.local_government && !isFetchingLocation && !geoLoading && (
+                    <p className="text-xs text-yellow-600">
+                      Could not auto-detect LGA. Please enter manually.
+                    </p>
+                  )}
                 </div>
-                {errors.local_government && (
-                  <p className="text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.local_government}
-                  </p>
-                )}
-                <p className="text-xs text-gray-500">
-                  Enter the local government area
-                </p>
               </div>
+
+              <p className="text-xs text-gray-500 flex items-center gap-1">
+                <Info className="w-3 h-3" />
+                State and Local Government are automatically detected from your GPS location.
+                You can edit them if needed.
+              </p>
             </div>
 
             {/* GPS Location */}
@@ -513,23 +715,24 @@ const SubmitReport = () => {
                   value={
                     locationData.latitude && locationData.longitude
                       ? `${locationData.latitude}, ${locationData.longitude}`
-                      : (geoLoading
+                      : (isFetchingLocation || geoLoading
                           ? "Detecting coordinates..."
-                          : "Coordinates not available")
+                          : locationError || "Coordinates not available")
                   }
                   readOnly
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg ${
-                    errors.location
+                  className={`w-full pl-10 pr-24 py-3 border rounded-lg ${
+                    errors.location || locationError
                       ? "border-red-300 bg-red-50"
                       : "border-gray-300 bg-gray-100"
                   }`}
                 />
-                {!geoLoading && locationData.latitude && (
+                {!isFetchingLocation && !geoLoading && (
                   <button
                     type="button"
-                    onClick={fetchLocation}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 hover:text-green-700 text-sm font-medium"
+                    onClick={handleRefreshLocation}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 hover:text-green-700 text-sm font-medium flex items-center gap-1"
                   >
+                    <Loader2 className={`w-4 h-4 ${isFetchingLocation ? "animate-spin" : ""}`} />
                     Refresh
                   </button>
                 )}
@@ -540,7 +743,13 @@ const SubmitReport = () => {
                   {errors.location}
                 </p>
               )}
-              {geoLoading && (
+              {locationError && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="w-4 h-4" />
+                  {locationError}
+                </p>
+              )}
+              {(isFetchingLocation || geoLoading) && (
                 <p className="text-xs text-green-600 flex items-center gap-1">
                   <Loader2 className="w-3 h-3 animate-spin" />
                   Detecting your coordinates...
@@ -548,9 +757,21 @@ const SubmitReport = () => {
               )}
               <p className="text-xs text-gray-500">
                 Your GPS coordinates are automatically detected. Make sure
-                location services are enabled.
+                location services are enabled in your browser.
               </p>
             </div>
+
+            {/* Location Address */}
+            {locationData.location_address && (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Location Address
+                </label>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-700">{locationData.location_address}</p>
+                </div>
+              </div>
+            )}
 
             {/* Description */}
             <div className="space-y-4">
@@ -566,7 +787,7 @@ const SubmitReport = () => {
                 name="description"
                 value={userInput.description}
                 onChange={handleChange}
-                maxLength={2000}
+                maxLength={5}
                 placeholder="Describe the issue in detail. Include:
 • Exact location details
 • When you first noticed the issue

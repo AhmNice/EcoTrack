@@ -178,6 +178,7 @@ export const useAuthStore = create((set, get) => ({
       }
       set({ loadingUser: false, userError: null, userSuccess: data.message })
       toast.success(data.message)
+      return { success: true }
     } catch (error) {
       const errMsg =
         error?.response?.data?.message ||
