@@ -7,7 +7,6 @@ import {
   Camera,
   Upload,
   Loader2,
-  X,
   AlertTriangle,
   Info,
   CheckCircle,
@@ -19,6 +18,221 @@ import { useGeolocation } from "../hook/useGeolocation";
 import { useReportStore } from "../store/reportStore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+
+// Nigerian States and LGAs Data
+const nigerian_states = {
+  "Abia": [
+    "Aba North", "Aba South", "Arochukwu", "Bende", "Ikwuano",
+    "Isiala-Ngwa North", "Isiala-Ngwa South", "Isuikwato", "Obi Nwa",
+    "Ohafia", "Osisioma", "Ngwa", "Ugwunagbo", "Ukwa East", "Ukwa West",
+    "Umuahia North", "Umuahia South", "Umu-Neochi"
+  ],
+  "Adamawa": [
+    "Demsa", "Fufore", "Ganaye", "Gireri", "Gombi", "Guyuk", "Hong",
+    "Jada", "Lamurde", "Madagali", "Maiha", "Mayo-Belwa", "Michika",
+    "Mubi North", "Mubi South", "Numan", "Shelleng", "Song", "Toungo",
+    "Yola North", "Yola South"
+  ],
+  "Anambra": [
+    "Aguata", "Anambra East", "Anambra West", "Anaocha", "Awka North",
+    "Awka South", "Ayamelum", "Dunukofia", "Ekwusigo", "Idemili North",
+    "Idemili south", "Ihiala", "Njikoka", "Nnewi North", "Nnewi South",
+    "Ogbaru", "Onitsha North", "Onitsha South", "Orumba North",
+    "Orumba South", "Oyi"
+  ],
+  "Akwa Ibom": [
+    "Abak", "Eastern Obolo", "Eket", "Esit Eket", "Essien Udim",
+    "Etim Ekpo", "Etinan", "Ibeno", "Ibesikpo Asutan", "Ibiono Ibom",
+    "Ika", "Ikono", "Ikot Abasi", "Ikot Ekpene", "Ini", "Itu", "Mbo",
+    "Mkpat Enin", "Nsit Atai", "Nsit Ibom", "Nsit Ubium", "Obot Akara",
+    "Okobo", "Onna", "Oron", "Oruk Anam", "Udung Uko", "Ukanafun",
+    "Uruan", "Urue-Offong/Oruko", "Uyo"
+  ],
+  "Bauchi": [
+    "Alkaleri", "Bauchi", "Bogoro", "Damban", "Darazo", "Dass",
+    "Ganjuwa", "Giade", "Itas/Gadau", "Jama'are", "Katagum", "Kirfi",
+    "Misau", "Ningi", "Shira", "Tafawa-Balewa", "Toro", "Warji", "Zaki"
+  ],
+  "Bayelsa": [
+    "Brass", "Ekeremor", "Kolokuma/Opokuma", "Nembe", "Ogbia", "Sagbama",
+    "Southern Jaw", "Yenegoa"
+  ],
+  "Benue": [
+    "Ado", "Agatu", "Apa", "Buruku", "Gboko", "Guma", "Gwer East",
+    "Gwer West", "Katsina-Ala", "Konshisha", "Kwande", "Logo", "Makurdi",
+    "Obi", "Ogbadibo", "Oju", "Okpokwu", "Ohimini", "Oturkpo", "Tarka",
+    "Ukum", "Ushongo", "Vandeikya"
+  ],
+  "Borno": [
+    "Abadam", "Askira/Uba", "Bama", "Bayo", "Biu", "Chibok", "Damboa",
+    "Dikwa", "Gubio", "Guzamala", "Gwoza", "Hawul", "Jere", "Kaga",
+    "Kala/Balge", "Konduga", "Kukawa", "Kwaya Kusar", "Mafa", "Magumeri",
+    "Maiduguri", "Marte", "Mobbar", "Monguno", "Ngala", "Nganzai", "Shani"
+  ],
+  "Cross River": [
+    "Akpabuyo", "Odukpani", "Akamkpa", "Biase", "Abi", "Ikom", "Yarkur",
+    "Odubra", "Boki", "Ogoja", "Yala", "Obanliku", "Obudu", "Calabar South",
+    "Etung", "Bekwara", "Bakassi", "Calabar Municipality"
+  ],
+  "Delta": [
+    "Oshimili", "Aniocha", "Aniocha South", "Ika South", "Ika North-East",
+    "Ndokwa West", "Ndokwa East", "Isoko south", "Isoko North", "Bomadi",
+    "Burutu", "Ughelli South", "Ughelli North", "Ethiope West", "Ethiope East",
+    "Sapele", "Okpe", "Warri North", "Warri South", "Uvwie", "Udu",
+    "Warri Central", "Ukwani", "Oshimili North", "Patani"
+  ],
+  "Ebonyi": [
+    "Edda", "Afikpo", "Onicha", "Ohaozara", "Abakaliki", "Ishielu", "lkwo",
+    "Ezza", "Ezza South", "Ohaukwu", "Ebonyi", "Ivo"
+  ],
+  "Enugu": [
+    "Enugu South,", "Igbo-Eze South", "Enugu North", "Nkanu", "Udi Agwu",
+    "Oji-River", "Ezeagu", "IgboEze North", "Isi-Uzo", "Nsukka", "Igbo-Ekiti",
+    "Uzo-Uwani", "Enugu Eas", "Aninri", "Nkanu East", "Udenu."
+  ],
+  "Edo": [
+    "Esan North-East", "Esan Central", "Esan West", "Egor", "Ukpoba",
+    "Central", "Etsako Central", "Igueben", "Oredo", "Ovia SouthWest",
+    "Ovia South-East", "Orhionwon", "Uhunmwonde", "Etsako East", "Esan South-East"
+  ],
+  "Ekiti": [
+    "Ado", "Ekiti-East", "Ekiti-West", "Emure/Ise/Orun", "Ekiti South-West",
+    "Ikere", "Irepodun", "Ijero,", "Ido/Osi", "Oye", "Ikole", "Moba",
+    "Gbonyin", "Efon", "Ise/Orun", "Ilejemeje."
+  ],
+  "FCT": [
+    "Abaji", "Abuja Municipal", "Bwari", "Gwagwalada", "Kuje", "Kwali"
+  ],
+  "Gombe": [
+    "Akko", "Balanga", "Billiri", "Dukku", "Kaltungo", "Kwami", "Shomgom",
+    "Funakaye", "Gombe", "Nafada/Bajoga", "Yamaltu/Delta."
+  ],
+  "Imo": [
+    "Aboh-Mbaise", "Ahiazu-Mbaise", "Ehime-Mbano", "Ezinihitte", "Ideato North",
+    "Ideato South", "Ihitte/Uboma", "Ikeduru", "Isiala Mbano", "Isu",
+    "Mbaitoli", "Mbaitoli", "Ngor-Okpala", "Njaba", "Nwangele", "Nkwerre",
+    "Obowo", "Oguta", "Ohaji/Egbema", "Okigwe", "Orlu", "Orsu", "Oru East",
+    "Oru West", "Owerri-Municipal", "Owerri North", "Owerri West"
+  ],
+  "Jigawa": [
+    "Auyo", "Babura", "Birni Kudu", "Biriniwa", "Buji", "Dutse", "Gagarawa",
+    "Garki", "Gumel", "Guri", "Gwaram", "Gwiwa", "Hadejia", "Jahun",
+    "Kafin Hausa", "Kaugama Kazaure", "Kiri Kasamma", "Kiyawa", "Maigatari",
+    "Malam Madori", "Miga", "Ringim", "Roni", "Sule-Tankarkar", "Taura", "Yankwashi"
+  ],
+  "Kaduna": [
+    "Birni-Gwari", "Chikun", "Giwa", "Igabi", "Ikara", "jaba", "Jema'a",
+    "Kachia", "Kaduna North", "Kaduna South", "Kagarko", "Kajuru", "Kaura",
+    "Kauru", "Kubau", "Kudan", "Lere", "Makarfi", "Sabon-Gari", "Sanga",
+    "Soba", "Zango-Kataf", "Zaria"
+  ],
+  "Kano": [
+    "Ajingi", "Albasu", "Bagwai", "Bebeji", "Bichi", "Bunkure", "Dala",
+    "Dambatta", "Dawakin Kudu", "Dawakin Tofa", "Doguwa", "Fagge", "Gabasawa",
+    "Garko", "Garum Mallam", "Gaya", "Gezawa", "Gwale", "Gwarzo", "Kabo",
+    "Kano Municipal", "Karaye", "Kibiya", "Kiru", "kumbotso", "Ghari",
+    "Kura", "Madobi", "Makoda", "Minjibir", "Nasarawa", "Rano", "Rimin Gado",
+    "Rogo", "Shanono", "Sumaila", "Takali", "Tarauni", "Tofa", "Tsanyawa",
+    "Tudun Wada", "Ungogo", "Warawa", "Wudil"
+  ],
+  "Katsina": [
+    "Bakori", "Batagarawa", "Batsari", "Baure", "Bindawa", "Charanchi",
+    "Dandume", "Danja", "Dan Musa", "Daura", "Dutsi", "Dutsin-Ma", "Faskari",
+    "Funtua", "Ingawa", "Jibia", "Kafur", "Kaita", "Kankara", "Kankia",
+    "Katsina", "Kurfi", "Kusada", "Mai'Adua", "Malumfashi", "Mani", "Mashi",
+    "Matazuu", "Musawa", "Rimi", "Sabuwa", "Safana", "Sandamu", "Zango"
+  ],
+  "Kebbi": [
+    "Aleiro", "Arewa-Dandi", "Argungu", "Augie", "Bagudo", "Birnin Kebbi",
+    "Bunza", "Dandi", "Fakai", "Gwandu", "Jega", "Kalgo", "Koko/Besse",
+    "Maiyama", "Ngaski", "Sakaba", "Shanga", "Suru", "Wasagu/Danko", "Yauri", "Zuru"
+  ],
+  "Kogi": [
+    "Adavi", "Ajaokuta", "Ankpa", "Bassa", "Dekina", "Ibaji", "Idah",
+    "Igalamela-Odolu", "Ijumu", "Kabba/Bunu", "Kogi", "Lokoja", "Mopa-Muro",
+    "Ofu", "Ogori/Mangongo", "Okehi", "Okene", "Olamabolo", "Omala",
+    "Yagba East", "Yagba West"
+  ],
+  "Kwara": [
+    "Asa", "Baruten", "Edu", "Ekiti", "Ifelodun", "Ilorin East", "Ilorin West",
+    "Irepodun", "Isin", "Kaiama", "Moro", "Offa", "Oke-Ero", "Oyun", "Pategi"
+  ],
+  "Lagos": [
+    "Agege", "Ajeromi-Ifelodun", "Alimosho", "Amuwo-Odofin", "Apapa", "Badagry",
+    "Epe", "Eti-Osa", "Ibeju/Lekki", "Ifako-Ijaye", "Ikeja", "Ikorodu",
+    "Kosofe", "Lagos Island", "Lagos Mainland", "Mushin", "Ojo", "Oshodi-Isolo",
+    "Shomolu", "Surulere"
+  ],
+  "Nasarawa": [
+    "Akwanga", "Awe", "Doma", "Karu", "Keana", "Keffi", "Kokona", "Lafia",
+    "Nasarawa", "Nasarawa-Eggon", "Obi", "Toto", "Wamba"
+  ],
+  "Niger": [
+    "Agaie", "Agwara", "Bida", "Borgu", "Bosso", "Chanchaga", "Edati", "Gbako",
+    "Gurara", "Katcha", "Kontagora", "Lapai", "Lavun", "Magama", "Mariga",
+    "Mashegu", "Mokwa", "Muya", "Pailoro", "Rafi", "Rijau", "Shiroro",
+    "Suleja", "Tafa", "Wushishi"
+  ],
+  "Ogun": [
+    "Abeokuta North", "Abeokuta South", "Ado-Odo/Ota", "Yewa North", "Yewa South",
+    "Ewekoro", "Ifo", "Ijebu East", "Ijebu North", "Ijebu North East",
+    "Ijebu Ode", "Ikenne", "Imeko-Afon", "Ipokia", "Obafemi-Owode",
+    "Ogun Waterside", "Odeda", "Odogbolu", "Remo North", "Shagamu"
+  ],
+  "Ondo": [
+    "Akoko North East", "Akoko North West", "Akoko South Akure East",
+    "Akoko South West", "Akure North", "Akure South", "Ese-Odo", "Idanre",
+    "Ifedore", "Ilaje", "Ile-Oluji Okeigbo", "Irele", "Odigbo", "Okitipupa",
+    "Ondo East", "Ondo West", "Ose", "Owo"
+  ],
+  "Osun": [
+    "Aiyedade", "Aiyedire", "Atakumosa East", "Atakumosa West", "Boluwaduro",
+    "Boripe", "Ede North", "Ede South", "Egbedore", "Ejigbo", "Ife Central",
+    "Ife East", "Ife North", "Ife South", "Ifedayo", "Ifelodun", "Ila",
+    "Ilesha East", "Ilesha West", "Irepodun", "Irewole", "Isokan", "Iwo",
+    "Obokun", "Odo-Otin", "Ola-Oluwa", "Olorunda", "Oriade", "Orolu", "Osogbo"
+  ],
+  "Oyo": [
+    "Afijio", "Akinyele", "Atiba", "Atisbo", "Egbeda", "Ibadan Central",
+    "Ibadan North", "Ibadan North West", "Ibadan South East", "Ibadan South West",
+    "Ibarapa Central", "Ibarapa East", "Ibarapa North", "Ido", "Irepo",
+    "Iseyin", "Itesiwaju", "Iwajowa", "Kajola", "Lagelu Ogbomosho North",
+    "Ogbomosho South", "Ogo Oluwa", "Olorunsogo", "Oluyole", "Ona-Ara",
+    "Orelope", "Ori Ire", "Oyo East", "Oyo West", "Saki East", "Saki West", "Surulere"
+  ],
+  "Plateau": [
+    "Barikin Ladi", "Bassa", "Bokkos", "Jos East", "Jos North", "Jos South",
+    "Kanam", "Kanke", "Langtang North", "Langtang South", "Mangu", "Mikang",
+    "Pankshin", "Qua'an Pan", "Riyom", "Shendam", "Wase"
+  ],
+  "Rivers": [
+    "Abua/Odual", "Ahoada East", "Ahoada West", "Akuku Toru", "Andoni",
+    "Asari-Toru", "Bonny", "Degema", "Emohua", "Eleme", "Etche", "Gokana",
+    "Ikwerre", "Khana", "Obio/Akpor", "Ogba/Egbema/Ndoni", "Ogu/Bolo",
+    "Okrika", "Omumma", "Opobo/Nkoro", "Oyigbo", "Port-Harcourt", "Tai"
+  ],
+  "Sokoto": [
+    "Binji", "Bodinga", "Dange-shnsi", "Gada", "Goronyo", "Gudu", "Gawabawa",
+    "Illela", "Isa", "Kware", "kebbe", "Rabah", "Sabon birni", "Shagari",
+    "Silame", "Sokoto North", "Sokoto South", "Tambuwal", "Tqngaza", "Tureta",
+    "Wamako", "Wurno", "Yabo"
+  ],
+  "Taraba": [
+    "Ardo-kola", "Bali", "Donga", "Gashaka", "Cassol", "Ibi", "Jalingo",
+    "Karin-Lamido", "Kurmi", "Lau", "Sardauna", "Takum", "Ussa", "Wukari",
+    "Yorro", "Zing"
+  ],
+  "Yobe": [
+    "Bade", "Bursari", "Damaturu", "Fika", "Fune", "Geidam", "Gujba",
+    "Gulani", "Jakusko", "Karasuwa", "Karawa", "Machina", "Nangere",
+    "Nguru Potiskum", "Tarmua", "Yunusari", "Yusufari"
+  ],
+  "Zamfara": [
+    "Anka", "Bakura", "Birnin Magaji", "Bukkuyum", "Bungudu", "Gummi",
+    "Gusau", "Kaura Namoda", "Maradun", "Maru", "Shinkafi", "Talata Mafara",
+    "Tsafe", "Zurmi"
+  ]
+};
 
 const SubmitReport = () => {
   const navigate = useNavigate();
@@ -37,7 +251,7 @@ const SubmitReport = () => {
     local_government: "",
   });
 
-  // State for location data (auto-populated and not cleared on submit)
+  // State for location data (auto-populated from GPS)
   const [locationData, setLocationData] = useState({
     latitude: "",
     longitude: "",
@@ -71,7 +285,7 @@ const SubmitReport = () => {
     fetchIssues();
   }, []);
 
-  // Fetch location on mount with better error handling
+  // Fetch location on mount
   useEffect(() => {
     const initLocation = async () => {
       setIsFetchingLocation(true);
@@ -80,9 +294,7 @@ const SubmitReport = () => {
         await fetchLocation();
       } catch (error) {
         console.error("Location fetch error:", error);
-        setLocationError(
-          "Unable to detect location. Please enable location services.",
-        );
+        setLocationError("Unable to detect location. Please enable location services.");
       } finally {
         setIsFetchingLocation(false);
       }
@@ -98,271 +310,31 @@ const SubmitReport = () => {
         latitude: location.latitude,
         longitude: location.longitude,
       }));
-      getAddress(); // This should trigger address lookup
+      getAddress();
     }
   }, [location.latitude, location.longitude]);
 
-  // Function to extract state and local government from address components
-  const extractGovernmentData = (addressComponents) => {
-    let state = "";
-    let localGovernment = "";
-
-    // Common Nigerian state and LGA patterns
-    const nigerianStates = [
-      "Abia",
-      "Adamawa",
-      "Akwa Ibom",
-      "Anambra",
-      "Bauchi",
-      "Bayelsa",
-      "Benue",
-      "Borno",
-      "Cross River",
-      "Delta",
-      "Ebonyi",
-      "Edo",
-      "Ekiti",
-      "Enugu",
-      "Gombe",
-      "Imo",
-      "Jigawa",
-      "Kaduna",
-      "Kano",
-      "Katsina",
-      "Kebbi",
-      "Kogi",
-      "Kwara",
-      "Lagos",
-      "Nasarawa",
-      "Niger",
-      "Ogun",
-      "Ondo",
-      "Osun",
-      "Oyo",
-      "Plateau",
-      "Rivers",
-      "Sokoto",
-      "Taraba",
-      "Yobe",
-      "Zamfara",
-      "FCT",
-      "Federal Capital Territory",
-    ];
-
-    // Common Nigerian LGAs (this is a small sample - you should expand this)
-    const nigerianLGAs = [
-      "Alimosho",
-      "Ajeromi-Ifelodun",
-      "Kosofe",
-      "Mushin",
-      "Oshodi-Isolo",
-      "Shomolu",
-      "Agege",
-      "Ifako-Ijaiye",
-      "Ikeja",
-      "Surulere",
-      "Lagos Island",
-      "Lagos Mainland",
-      "Apapa",
-      "Eti-Osa",
-      "Amuwo-Odofin",
-      "Ojo",
-      "Badagry",
-      "Ikorodu",
-      "Ibeju-Lekki",
-      "Epe",
-      "Abuja Municipal",
-      "Gwagwalada",
-      "Kuje",
-      "Bwari",
-      "Abaji",
-      "Kwali",
-    ];
-
-    // Check various possible fields in the address object
-    if (addressComponents) {
-      // Try to find state from different possible field names
-      state =
-        addressComponents.state ||
-        addressComponents.province ||
-        addressComponents.region ||
-        addressComponents.administrative_area_level_1 ||
-        "";
-
-      // Try to find local government from different possible field names
-      localGovernment =
-        addressComponents.county ||
-        addressComponents.district ||
-        addressComponents.municipality ||
-        addressComponents.city ||
-        addressComponents.locality ||
-        addressComponents.suburb ||
-        addressComponents.administrative_area_level_2 ||
-        "";
-
-      // If no state found but we have a city, try to infer from city
-      if (!state && addressComponents.city) {
-        for (const nigState of nigerianStates) {
-          if (
-            addressComponents.city
-              .toLowerCase()
-              .includes(nigState.toLowerCase())
-          ) {
-            state = nigState;
-            break;
-          }
-        }
-      }
-
-      // Clean up and validate state
-      if (
-        state &&
-        !nigerianStates.some((s) =>
-          state.toLowerCase().includes(s.toLowerCase()),
-        )
-      ) {
-        // If state doesn't match known Nigerian states, keep as is but log warning
-        console.warn("Unknown state detected:", state);
-      }
-
-      // Clean up and validate local government
-      if (
-        localGovernment &&
-        !nigerianLGAs.some((lga) =>
-          localGovernment.toLowerCase().includes(lga.toLowerCase()),
-        )
-      ) {
-        // If LGA doesn't match known LGAs, try to extract from full address
-        if (addressComponents.formatted_address) {
-          const addressParts = addressComponents.formatted_address.split(",");
-          if (addressParts.length >= 2) {
-            const possibleLGA = addressParts[addressParts.length - 2].trim();
-            if (possibleLGA && possibleLGA.length < 30) {
-              localGovernment = possibleLGA;
-            }
-          }
-        }
-      }
-    }
-
-    return { state, local_government: localGovernment };
-  };
-
-  // Function to get government data from coordinates using reverse geocoding API
-  const fetchGovernmentDataFromCoordinates = async (lat, lng) => {
-    try {
-      // Using OpenStreetMap Nominatim API (free, no API key required)
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch location data");
-      }
-
-      const data = await response.json();
-
-      if (data && data.address) {
-        const address = data.address;
-
-        // Extract Nigerian state and LGA from OSM data
-        let state = address.state || address.province || address.region || "";
-        let localGovernment =
-          address.county ||
-          address.district ||
-          address.city_district ||
-          address.municipality ||
-          address.city ||
-          address.town ||
-          "";
-
-        // For Nigerian addresses, sometimes LGA is in the 'county' or 'district' field
-        if (!localGovernment && address.suburb) {
-          localGovernment = address.suburb;
-        }
-
-        // If still no local government, try to extract from the display name
-        if (!localGovernment && data.display_name) {
-          const parts = data.display_name.split(",");
-          if (parts.length >= 3) {
-            // Often the LGA is the third part from the end in Nigerian addresses
-            const possibleLGA = parts[parts.length - 3].trim();
-            if (
-              possibleLGA &&
-              possibleLGA.length < 40 &&
-              !possibleLGA.includes(localGovernment)
-            ) {
-              localGovernment = possibleLGA;
-            }
-          }
-        }
-
-        // Update address in locationData
-        setLocationData((prev) => ({
-          ...prev,
-          location_address:
-            data.display_name || `${address.city || ""}, ${state || ""}`.trim(),
-        }));
-
-        return { state, local_government: localGovernment };
-      }
-    } catch (error) {
-      console.error("Error fetching government data:", error);
-      toast.error(
-        "Could not automatically detect state and local government. Please enter manually.",
-      );
-    }
-
-    return { state: "", local_government: "" };
-  };
-
-  // Update address and extract government data when available
+  // Update address when available
   useEffect(() => {
-    const updateGovernmentInfo = async () => {
-      if (address && location.latitude && location.longitude) {
-        // First try to extract from the address object from your geolocation hook
-        let extractedData = extractGovernmentData(address);
-
-        // If state or LGA is missing, try the direct API approach
-        if (!extractedData.state || !extractedData.local_government) {
-          const apiData = await fetchGovernmentDataFromCoordinates(
-            location.latitude,
-            location.longitude,
-          );
-
-          extractedData = {
-            state: extractedData.state || apiData.state,
-            local_government:
-              extractedData.local_government || apiData.local_government,
-          };
-        }
-
-        setGovernmentData({
-          state: extractedData.state,
-          local_government: extractedData.local_government,
-        });
-
-        // Set the full address if not already set
-        if (address.formatted_address) {
-          setLocationData((prev) => ({
-            ...prev,
-            location_address: address.formatted_address,
-          }));
-        }
-      }
-    };
-
-    if (address || (location.latitude && location.longitude)) {
-      updateGovernmentInfo();
+    if (address) {
+      setLocationData((prev) => ({
+        ...prev,
+        location_address: `${address.city || ""}, ${address.country || ""}`.trim(),
+      }));
     }
-  }, [address, location.latitude, location.longitude]);
+  }, [address]);
 
   // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "state" || name === "local_government") {
-      setGovernmentData((prev) => ({ ...prev, [name]: value }));
+    if (name === "state") {
+      setGovernmentData({
+        state: value,
+        local_government: "" // Reset LGA when state changes
+      });
+    } else if (name === "local_government") {
+      setGovernmentData((prev) => ({ ...prev, local_government: value }));
     } else {
       setUserInput((prev) => ({ ...prev, [name]: value }));
     }
@@ -373,7 +345,7 @@ const SubmitReport = () => {
     }
   };
 
-  // Manual refresh of location and government data
+  // Manual refresh of location
   const handleRefreshLocation = async () => {
     setIsFetchingLocation(true);
     setLocationError("");
@@ -382,9 +354,7 @@ const SubmitReport = () => {
       toast.info("Refreshing location data...");
     } catch (error) {
       console.error("Error refreshing location:", error);
-      setLocationError(
-        "Failed to refresh location. Please check your location settings.",
-      );
+      setLocationError("Failed to refresh location. Please check your location settings.");
       toast.error("Could not refresh location");
     } finally {
       setIsFetchingLocation(false);
@@ -400,10 +370,9 @@ const SubmitReport = () => {
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
 
-    // Validate file types and sizes
     const validFiles = files.filter((file) => {
       const isValidType = file.type.startsWith("image/");
-      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
+      const isValidSize = file.size <= 5 * 1024 * 1024;
 
       if (!isValidType) {
         toast.error(`${file.name} is not a valid image file`);
@@ -444,16 +413,16 @@ const SubmitReport = () => {
 
     if (!userInput.description.trim()) {
       newErrors.description = "Description is required";
-    } else if (userInput.description.length < 5) {
+    } else if (userInput.description.length < 50) {
       newErrors.description = "Description should be at least 50 characters";
     }
 
-    if (!governmentData.state.trim()) {
-      newErrors.state = "State is required";
+    if (!governmentData.state) {
+      newErrors.state = "Please select a state";
     }
 
-    if (!governmentData.local_government.trim()) {
-      newErrors.local_government = "Local Government is required";
+    if (!governmentData.local_government) {
+      newErrors.local_government = "Please select a local government area";
     }
 
     if (!locationData.latitude || !locationData.longitude) {
@@ -474,25 +443,18 @@ const SubmitReport = () => {
       return;
     }
 
-    // Create FormData object
     const formData = new FormData();
 
-    // Append user input
     formData.append("title", userInput.title);
     formData.append("issue_type", userInput.issue_type);
     formData.append("description", userInput.description);
     formData.append("severity_level", userInput.severity);
-
-    // Append government jurisdiction data
     formData.append("state", governmentData.state);
     formData.append("local_government", governmentData.local_government);
-
-    // Append location data (auto-populated)
     formData.append("latitude", locationData.latitude);
     formData.append("longitude", locationData.longitude);
     formData.append("location_address", locationData.location_address);
 
-    // Append images
     images.forEach((image) => {
       formData.append("files", image);
     });
@@ -502,33 +464,28 @@ const SubmitReport = () => {
       const response = await createReport(formData);
 
       if (response.success) {
-        // Reset only user input fields, keep location and government data
         setUserInput({
           title: "",
           issue_type: "",
           description: "",
           severity: "medium",
         });
+        setGovernmentData({
+          state: "",
+          local_government: "",
+        });
         setImages([]);
         setSuccessMessage("Report submitted successfully!");
 
-        // Clear success message after 5 seconds
         setTimeout(() => {
           setSuccessMessage("");
         }, 5000);
-
-        // Optional: Navigate to reports page after successful submission
-        // setTimeout(() => {
-        //   navigate("/my-reports");
-        // }, 2000);
       } else {
         throw new Error(response.message || "Failed to submit report");
       }
     } catch (error) {
       console.error("Error submitting report:", error);
-      toast.error(
-        error.message || "Failed to submit report. Please try again.",
-      );
+      toast.error(error.message || "Failed to submit report. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -590,8 +547,7 @@ const SubmitReport = () => {
                   Submit Environmental Report
                 </h1>
                 <p className="text-gray-600">
-                  Help protect the environment by reporting issues in your
-                  community
+                  Help protect the environment by reporting issues in your community
                 </p>
               </div>
             </div>
@@ -628,8 +584,7 @@ const SubmitReport = () => {
                 </p>
               )}
               <p className="text-xs text-gray-500">
-                Be specific and descriptive. Include location and issue type in
-                the title.
+                Be specific and descriptive. Include location and issue type in the title.
               </p>
             </div>
 
@@ -658,11 +613,7 @@ const SubmitReport = () => {
                     ))}
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                       <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                     </svg>
                   </div>
@@ -688,130 +639,100 @@ const SubmitReport = () => {
                         key={level.value}
                         type="button"
                         onClick={() => handleSeverityChange(level.value)}
-                        className={`py-3 px-2 rounded-lg border flex flex-row items-center gap-1 transition-all ${
+                        className={`py-3 px-2 rounded-lg border flex flex-row items-center justify-center gap-1 transition-all ${
                           userInput.severity === level.value
                             ? `${level.color} ring-2 ring-offset-1 ring-opacity-50`
                             : "bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100"
                         }`}
                       >
                         <Icon className="w-4 h-4" />
-                        <span className="font-medium text-sm">
-                          {level.label}
-                        </span>
+                        <span className="font-medium text-sm">{level.label}</span>
                       </button>
                     );
                   })}
                 </div>
                 <p className="text-xs text-gray-500">
-                  {
-                    severityOptions.find((l) => l.value === userInput.severity)
-                      ?.description
-                  }
+                  {severityOptions.find((l) => l.value === userInput.severity)?.description}
                 </p>
               </div>
             </div>
 
-            {/* Government Jurisdiction - Auto-populated from GPS */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <label className="block text-sm font-semibold text-gray-900">
-                  Government Jurisdiction (Auto-detected)
+            {/* State and Local Government Selection */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* State Selection */}
+              <div className="space-y-4">
+                <label className="block text-sm font-semibold text-gray-900 flex items-center gap-2">
+                  <Map className="w-4 h-4" />
+                  State *
                 </label>
-                {(isFetchingLocation || geoLoading) && (
-                  <span className="text-xs text-green-600 flex items-center gap-1">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    Detecting...
-                  </span>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* State */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Map className="w-4 h-4" />
-                    State *
-                  </label>
-                  <input
-                    type="text"
+                <div className="relative">
+                  <select
                     name="state"
                     value={governmentData.state}
                     onChange={handleChange}
-                    placeholder={
-                      isFetchingLocation
-                        ? "Detecting state..."
-                        : "State will be auto-detected"
-                    }
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition ${
                       errors.state ? "border-red-300" : "border-gray-300"
-                    } ${!governmentData.state && !isFetchingLocation ? "bg-yellow-50" : ""}`}
+                    }`}
                     required
-                  />
-                  {errors.state && (
-                    <p className="text-sm text-red-600 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      {errors.state}
-                    </p>
-                  )}
-                  {!governmentData.state &&
-                    !isFetchingLocation &&
-                    !geoLoading && (
-                      <p className="text-xs text-yellow-600">
-                        Could not auto-detect state. Please enter manually.
-                      </p>
-                    )}
+                  >
+                    <option value="">Select a state</option>
+                    {Object.keys(nigerian_states).sort().map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+                {errors.state && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.state}
+                  </p>
+                )}
+                <p className="text-xs text-gray-500">Select the state where the issue is located</p>
+              </div>
 
-                {/* Local Government */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                    <Building className="w-4 h-4" />
-                    Local Government *
-                  </label>
-                  <input
-                    type="text"
+              {/* Local Government Selection */}
+              <div className="space-y-4">
+                <label className="block text-sm font-semibold text-gray-900 flex items-center gap-2">
+                  <Building className="w-4 h-4" />
+                  Local Government *
+                </label>
+                <div className="relative">
+                  <select
                     name="local_government"
                     value={governmentData.local_government}
                     onChange={handleChange}
-                    placeholder={
-                      isFetchingLocation
-                        ? "Detecting LGA..."
-                        : "Local Government will be auto-detected"
-                    }
+                    disabled={!governmentData.state}
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition ${
-                      errors.local_government
-                        ? "border-red-300"
-                        : "border-gray-300"
-                    } ${!governmentData.local_government && !isFetchingLocation ? "bg-yellow-50" : ""}`}
+                      errors.local_government ? "border-red-300" : "border-gray-300"
+                    } ${!governmentData.state ? "bg-gray-100 cursor-not-allowed" : ""}`}
                     required
-                  />
-                  {errors.local_government && (
-                    <p className="text-sm text-red-600 flex items-center gap-1">
-                      <AlertCircle className="w-4 h-4" />
-                      {errors.local_government}
-                    </p>
-                  )}
-                  {!governmentData.local_government &&
-                    !isFetchingLocation &&
-                    !geoLoading && (
-                      <p className="text-xs text-yellow-600">
-                        Could not auto-detect LGA. Please enter manually.
-                      </p>
-                    )}
+                  >
+                    <option value="">
+                      {governmentData.state ? "Select a local government" : "Select a state first"}
+                    </option>
+                    {governmentData.state && nigerian_states[governmentData.state]?.sort().map((lga) => (
+                      <option key={lga} value={lga}>
+                        {lga}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+                {errors.local_government && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.local_government}
+                  </p>
+                )}
+                <p className="text-xs text-gray-500">Select the local government area</p>
               </div>
-
-              <p className="text-xs text-gray-500 flex items-center gap-1">
-                <Info className="w-3 h-3" />
-                State and Local Government are automatically detected from your
-                GPS location. You can edit them if needed.
-              </p>
             </div>
 
-            {/* GPS Location */}
+            {/* GPS Location - Auto-detected */}
             <div className="space-y-4">
               <label className="block text-sm font-semibold text-gray-900">
-                GPS Location Coordinates *
+                GPS Location Coordinates (Auto-detected) *
               </label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -820,9 +741,9 @@ const SubmitReport = () => {
                   value={
                     locationData.latitude && locationData.longitude
                       ? `${locationData.latitude}, ${locationData.longitude}`
-                      : isFetchingLocation || geoLoading
-                        ? "Detecting coordinates..."
-                        : locationError || "Coordinates not available"
+                      : (isFetchingLocation || geoLoading
+                          ? "Detecting coordinates..."
+                          : locationError || "Coordinates not available")
                   }
                   readOnly
                   className={`w-full pl-10 pr-24 py-3 border rounded-lg ${
@@ -837,9 +758,7 @@ const SubmitReport = () => {
                     onClick={handleRefreshLocation}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 hover:text-green-700 text-sm font-medium flex items-center gap-1"
                   >
-                    <Loader2
-                      className={`w-4 h-4 ${isFetchingLocation ? "animate-spin" : ""}`}
-                    />
+                    <Loader2 className={`w-4 h-4 ${isFetchingLocation ? "animate-spin" : ""}`} />
                     Refresh
                   </button>
                 )}
@@ -863,8 +782,7 @@ const SubmitReport = () => {
                 </p>
               )}
               <p className="text-xs text-gray-500">
-                Your GPS coordinates are automatically detected. Make sure
-                location services are enabled in your browser.
+                Your GPS coordinates are automatically detected. Make sure location services are enabled in your browser.
               </p>
             </div>
 
@@ -872,12 +790,10 @@ const SubmitReport = () => {
             {locationData.location_address && (
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
-                  Location Address
+                  Location Address (Auto-detected)
                 </label>
                 <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm text-gray-700">
-                    {locationData.location_address}
-                  </p>
+                  <p className="text-sm text-gray-700">{locationData.location_address}</p>
                 </div>
               </div>
             )}
@@ -916,8 +832,7 @@ const SubmitReport = () => {
                 </p>
               )}
               <p className="text-xs text-gray-500">
-                The more details you provide, the easier it will be for
-                authorities to take action.
+                The more details you provide, the easier it will be for authorities to take action.
               </p>
             </div>
 
@@ -929,12 +844,9 @@ const SubmitReport = () => {
               <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-green-400 transition-colors">
                 <div className="text-gray-500 mb-4">
                   <Camera className="w-10 h-10 mx-auto mb-3 text-gray-400" />
-                  <p className="font-medium">
-                    Drag & drop photos or click to upload
-                  </p>
+                  <p className="font-medium">Drag & drop photos or click to upload</p>
                   <p className="text-sm mt-1">
-                    Maximum 5 images, 5MB each. Supported formats: JPG, PNG,
-                    WebP
+                    Maximum 5 images, 5MB each. Supported formats: JPG, PNG, WebP
                   </p>
                 </div>
                 <input
@@ -955,9 +867,7 @@ const SubmitReport = () => {
                   }`}
                 >
                   <Upload className="w-4 h-4" />
-                  {images.length >= 5
-                    ? "Maximum 5 images reached"
-                    : "Choose Files"}
+                  {images.length >= 5 ? "Maximum 5 images reached" : "Choose Files"}
                 </label>
               </div>
 
@@ -991,15 +901,6 @@ const SubmitReport = () => {
 
             {/* Form Actions */}
             <div className="pt-8 border-t border-gray-200">
-              {errors.submit && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium text-red-800">{errors.submit}</p>
-                  </div>
-                </div>
-              )}
-
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
@@ -1038,25 +939,12 @@ const SubmitReport = () => {
                     Important Information
                   </p>
                   <ul className="text-xs text-blue-800 space-y-1">
-                    <li>
-                      • Reports are reviewed within 24-48 hours by local
-                      authorities
-                    </li>
-                    <li>
-                      • Provide accurate government jurisdiction for proper
-                      routing
-                    </li>
+                    <li>• Reports are reviewed within 24-48 hours by local authorities</li>
+                    <li>• Provide accurate government jurisdiction for proper routing</li>
                     <li>• Include clear photos as evidence when possible</li>
-                    <li>
-                      • You can track your report status in "My Reports" section
-                    </li>
-                    <li>
-                      • False or misleading reports may lead to account
-                      suspension
-                    </li>
-                    <li>
-                      • For emergencies, contact local authorities directly
-                    </li>
+                    <li>• You can track your report status in "My Reports" section</li>
+                    <li>• False or misleading reports may lead to account suspension</li>
+                    <li>• For emergencies, contact local authorities directly</li>
                   </ul>
                 </div>
               </div>
