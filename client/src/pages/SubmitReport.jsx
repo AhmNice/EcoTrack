@@ -80,7 +80,9 @@ const SubmitReport = () => {
         await fetchLocation();
       } catch (error) {
         console.error("Location fetch error:", error);
-        setLocationError("Unable to detect location. Please enable location services.");
+        setLocationError(
+          "Unable to detect location. Please enable location services.",
+        );
       } finally {
         setIsFetchingLocation(false);
       }
@@ -107,44 +109,105 @@ const SubmitReport = () => {
 
     // Common Nigerian state and LGA patterns
     const nigerianStates = [
-      "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
-      "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Gombe", "Imo", "Jigawa",
-      "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara", "Lagos", "Nasarawa", "Niger",
-      "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara",
-      "FCT", "Federal Capital Territory"
+      "Abia",
+      "Adamawa",
+      "Akwa Ibom",
+      "Anambra",
+      "Bauchi",
+      "Bayelsa",
+      "Benue",
+      "Borno",
+      "Cross River",
+      "Delta",
+      "Ebonyi",
+      "Edo",
+      "Ekiti",
+      "Enugu",
+      "Gombe",
+      "Imo",
+      "Jigawa",
+      "Kaduna",
+      "Kano",
+      "Katsina",
+      "Kebbi",
+      "Kogi",
+      "Kwara",
+      "Lagos",
+      "Nasarawa",
+      "Niger",
+      "Ogun",
+      "Ondo",
+      "Osun",
+      "Oyo",
+      "Plateau",
+      "Rivers",
+      "Sokoto",
+      "Taraba",
+      "Yobe",
+      "Zamfara",
+      "FCT",
+      "Federal Capital Territory",
     ];
 
     // Common Nigerian LGAs (this is a small sample - you should expand this)
     const nigerianLGAs = [
-      "Alimosho", "Ajeromi-Ifelodun", "Kosofe", "Mushin", "Oshodi-Isolo", "Shomolu",
-      "Agege", "Ifako-Ijaiye", "Ikeja", "Surulere", "Lagos Island", "Lagos Mainland",
-      "Apapa", "Eti-Osa", "Amuwo-Odofin", "Ojo", "Badagry", "Ikorodu", "Ibeju-Lekki",
-      "Epe", "Abuja Municipal", "Gwagwalada", "Kuje", "Bwari", "Abaji", "Kwali"
+      "Alimosho",
+      "Ajeromi-Ifelodun",
+      "Kosofe",
+      "Mushin",
+      "Oshodi-Isolo",
+      "Shomolu",
+      "Agege",
+      "Ifako-Ijaiye",
+      "Ikeja",
+      "Surulere",
+      "Lagos Island",
+      "Lagos Mainland",
+      "Apapa",
+      "Eti-Osa",
+      "Amuwo-Odofin",
+      "Ojo",
+      "Badagry",
+      "Ikorodu",
+      "Ibeju-Lekki",
+      "Epe",
+      "Abuja Municipal",
+      "Gwagwalada",
+      "Kuje",
+      "Bwari",
+      "Abaji",
+      "Kwali",
     ];
 
     // Check various possible fields in the address object
     if (addressComponents) {
       // Try to find state from different possible field names
-      state = addressComponents.state ||
-              addressComponents.province ||
-              addressComponents.region ||
-              addressComponents.administrative_area_level_1 ||
-              "";
+      state =
+        addressComponents.state ||
+        addressComponents.province ||
+        addressComponents.region ||
+        addressComponents.administrative_area_level_1 ||
+        "";
 
       // Try to find local government from different possible field names
-      localGovernment = addressComponents.county ||
-                       addressComponents.district ||
-                       addressComponents.municipality ||
-                       addressComponents.city ||
-                       addressComponents.locality ||
-                       addressComponents.suburb ||
-                       addressComponents.administrative_area_level_2 ||
-                       "";
+      localGovernment =
+        addressComponents.county ||
+        addressComponents.district ||
+        addressComponents.municipality ||
+        addressComponents.city ||
+        addressComponents.locality ||
+        addressComponents.suburb ||
+        addressComponents.administrative_area_level_2 ||
+        "";
 
       // If no state found but we have a city, try to infer from city
       if (!state && addressComponents.city) {
         for (const nigState of nigerianStates) {
-          if (addressComponents.city.toLowerCase().includes(nigState.toLowerCase())) {
+          if (
+            addressComponents.city
+              .toLowerCase()
+              .includes(nigState.toLowerCase())
+          ) {
             state = nigState;
             break;
           }
@@ -152,16 +215,26 @@ const SubmitReport = () => {
       }
 
       // Clean up and validate state
-      if (state && !nigerianStates.some(s => state.toLowerCase().includes(s.toLowerCase()))) {
+      if (
+        state &&
+        !nigerianStates.some((s) =>
+          state.toLowerCase().includes(s.toLowerCase()),
+        )
+      ) {
         // If state doesn't match known Nigerian states, keep as is but log warning
         console.warn("Unknown state detected:", state);
       }
 
       // Clean up and validate local government
-      if (localGovernment && !nigerianLGAs.some(lga => localGovernment.toLowerCase().includes(lga.toLowerCase()))) {
+      if (
+        localGovernment &&
+        !nigerianLGAs.some((lga) =>
+          localGovernment.toLowerCase().includes(lga.toLowerCase()),
+        )
+      ) {
         // If LGA doesn't match known LGAs, try to extract from full address
         if (addressComponents.formatted_address) {
-          const addressParts = addressComponents.formatted_address.split(',');
+          const addressParts = addressComponents.formatted_address.split(",");
           if (addressParts.length >= 2) {
             const possibleLGA = addressParts[addressParts.length - 2].trim();
             if (possibleLGA && possibleLGA.length < 30) {
@@ -180,7 +253,7 @@ const SubmitReport = () => {
     try {
       // Using OpenStreetMap Nominatim API (free, no API key required)
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
       );
 
       if (!response.ok) {
@@ -194,8 +267,14 @@ const SubmitReport = () => {
 
         // Extract Nigerian state and LGA from OSM data
         let state = address.state || address.province || address.region || "";
-        let localGovernment = address.county || address.district || address.city_district ||
-                             address.municipality || address.city || address.town || "";
+        let localGovernment =
+          address.county ||
+          address.district ||
+          address.city_district ||
+          address.municipality ||
+          address.city ||
+          address.town ||
+          "";
 
         // For Nigerian addresses, sometimes LGA is in the 'county' or 'district' field
         if (!localGovernment && address.suburb) {
@@ -204,27 +283,34 @@ const SubmitReport = () => {
 
         // If still no local government, try to extract from the display name
         if (!localGovernment && data.display_name) {
-          const parts = data.display_name.split(',');
+          const parts = data.display_name.split(",");
           if (parts.length >= 3) {
             // Often the LGA is the third part from the end in Nigerian addresses
             const possibleLGA = parts[parts.length - 3].trim();
-            if (possibleLGA && possibleLGA.length < 40 && !possibleLGA.includes(localGovernment)) {
+            if (
+              possibleLGA &&
+              possibleLGA.length < 40 &&
+              !possibleLGA.includes(localGovernment)
+            ) {
               localGovernment = possibleLGA;
             }
           }
         }
 
         // Update address in locationData
-        setLocationData(prev => ({
+        setLocationData((prev) => ({
           ...prev,
-          location_address: data.display_name || `${address.city || ""}, ${state || ""}`.trim()
+          location_address:
+            data.display_name || `${address.city || ""}, ${state || ""}`.trim(),
         }));
 
         return { state, local_government: localGovernment };
       }
     } catch (error) {
       console.error("Error fetching government data:", error);
-      toast.error("Could not automatically detect state and local government. Please enter manually.");
+      toast.error(
+        "Could not automatically detect state and local government. Please enter manually.",
+      );
     }
 
     return { state: "", local_government: "" };
@@ -241,12 +327,13 @@ const SubmitReport = () => {
         if (!extractedData.state || !extractedData.local_government) {
           const apiData = await fetchGovernmentDataFromCoordinates(
             location.latitude,
-            location.longitude
+            location.longitude,
           );
 
           extractedData = {
             state: extractedData.state || apiData.state,
-            local_government: extractedData.local_government || apiData.local_government
+            local_government:
+              extractedData.local_government || apiData.local_government,
           };
         }
 
@@ -295,7 +382,9 @@ const SubmitReport = () => {
       toast.info("Refreshing location data...");
     } catch (error) {
       console.error("Error refreshing location:", error);
-      setLocationError("Failed to refresh location. Please check your location settings.");
+      setLocationError(
+        "Failed to refresh location. Please check your location settings.",
+      );
       toast.error("Could not refresh location");
     } finally {
       setIsFetchingLocation(false);
@@ -355,7 +444,7 @@ const SubmitReport = () => {
 
     if (!userInput.description.trim()) {
       newErrors.description = "Description is required";
-    } else if (userInput.description.length < 50) {
+    } else if (userInput.description.length < 5) {
       newErrors.description = "Description should be at least 50 characters";
     }
 
@@ -437,7 +526,9 @@ const SubmitReport = () => {
       }
     } catch (error) {
       console.error("Error submitting report:", error);
-      toast.error(error.message || "Failed to submit report. Please try again.");
+      toast.error(
+        error.message || "Failed to submit report. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -646,7 +737,11 @@ const SubmitReport = () => {
                     name="state"
                     value={governmentData.state}
                     onChange={handleChange}
-                    placeholder={isFetchingLocation ? "Detecting state..." : "State will be auto-detected"}
+                    placeholder={
+                      isFetchingLocation
+                        ? "Detecting state..."
+                        : "State will be auto-detected"
+                    }
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition ${
                       errors.state ? "border-red-300" : "border-gray-300"
                     } ${!governmentData.state && !isFetchingLocation ? "bg-yellow-50" : ""}`}
@@ -658,11 +753,13 @@ const SubmitReport = () => {
                       {errors.state}
                     </p>
                   )}
-                  {!governmentData.state && !isFetchingLocation && !geoLoading && (
-                    <p className="text-xs text-yellow-600">
-                      Could not auto-detect state. Please enter manually.
-                    </p>
-                  )}
+                  {!governmentData.state &&
+                    !isFetchingLocation &&
+                    !geoLoading && (
+                      <p className="text-xs text-yellow-600">
+                        Could not auto-detect state. Please enter manually.
+                      </p>
+                    )}
                 </div>
 
                 {/* Local Government */}
@@ -676,9 +773,15 @@ const SubmitReport = () => {
                     name="local_government"
                     value={governmentData.local_government}
                     onChange={handleChange}
-                    placeholder={isFetchingLocation ? "Detecting LGA..." : "Local Government will be auto-detected"}
+                    placeholder={
+                      isFetchingLocation
+                        ? "Detecting LGA..."
+                        : "Local Government will be auto-detected"
+                    }
                     className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition ${
-                      errors.local_government ? "border-red-300" : "border-gray-300"
+                      errors.local_government
+                        ? "border-red-300"
+                        : "border-gray-300"
                     } ${!governmentData.local_government && !isFetchingLocation ? "bg-yellow-50" : ""}`}
                     required
                   />
@@ -688,18 +791,20 @@ const SubmitReport = () => {
                       {errors.local_government}
                     </p>
                   )}
-                  {!governmentData.local_government && !isFetchingLocation && !geoLoading && (
-                    <p className="text-xs text-yellow-600">
-                      Could not auto-detect LGA. Please enter manually.
-                    </p>
-                  )}
+                  {!governmentData.local_government &&
+                    !isFetchingLocation &&
+                    !geoLoading && (
+                      <p className="text-xs text-yellow-600">
+                        Could not auto-detect LGA. Please enter manually.
+                      </p>
+                    )}
                 </div>
               </div>
 
               <p className="text-xs text-gray-500 flex items-center gap-1">
                 <Info className="w-3 h-3" />
-                State and Local Government are automatically detected from your GPS location.
-                You can edit them if needed.
+                State and Local Government are automatically detected from your
+                GPS location. You can edit them if needed.
               </p>
             </div>
 
@@ -715,9 +820,9 @@ const SubmitReport = () => {
                   value={
                     locationData.latitude && locationData.longitude
                       ? `${locationData.latitude}, ${locationData.longitude}`
-                      : (isFetchingLocation || geoLoading
-                          ? "Detecting coordinates..."
-                          : locationError || "Coordinates not available")
+                      : isFetchingLocation || geoLoading
+                        ? "Detecting coordinates..."
+                        : locationError || "Coordinates not available"
                   }
                   readOnly
                   className={`w-full pl-10 pr-24 py-3 border rounded-lg ${
@@ -732,7 +837,9 @@ const SubmitReport = () => {
                     onClick={handleRefreshLocation}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600 hover:text-green-700 text-sm font-medium flex items-center gap-1"
                   >
-                    <Loader2 className={`w-4 h-4 ${isFetchingLocation ? "animate-spin" : ""}`} />
+                    <Loader2
+                      className={`w-4 h-4 ${isFetchingLocation ? "animate-spin" : ""}`}
+                    />
                     Refresh
                   </button>
                 )}
@@ -768,7 +875,9 @@ const SubmitReport = () => {
                   Location Address
                 </label>
                 <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm text-gray-700">{locationData.location_address}</p>
+                  <p className="text-sm text-gray-700">
+                    {locationData.location_address}
+                  </p>
                 </div>
               </div>
             )}
@@ -787,7 +896,7 @@ const SubmitReport = () => {
                 name="description"
                 value={userInput.description}
                 onChange={handleChange}
-                maxLength={5}
+                maxLength={2000}
                 placeholder="Describe the issue in detail. Include:
 • Exact location details
 • When you first noticed the issue
@@ -933,7 +1042,10 @@ const SubmitReport = () => {
                       • Reports are reviewed within 24-48 hours by local
                       authorities
                     </li>
-                    <li>• Provide accurate government jurisdiction for proper routing</li>
+                    <li>
+                      • Provide accurate government jurisdiction for proper
+                      routing
+                    </li>
                     <li>• Include clear photos as evidence when possible</li>
                     <li>
                       • You can track your report status in "My Reports" section
